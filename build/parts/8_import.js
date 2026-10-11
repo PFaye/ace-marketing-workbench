@@ -23,10 +23,15 @@ function renderMapping() {
 }
 function renderPreview() { const rows = mapRows(im.rows.slice(0, 5), im.target, im.mapping); const cols = im.target === "metrics" ? ["date", "platform", "campaign", "spend", "impressions", "clicks", "conversions", "engagements", "negatives"] : ["name", "platform", "category", "followers", "avgViews", "avgEngagements", "engagementRate", "quote", "fitScore", "audience"];
   const t = $("#imPreview"); t.replaceChildren(h("thead", null, h("tr", null, cols.map((c) => h("th", null, FIELD_LABELS[c] || c)))), h("tbody", null, rows.length ? rows.map((r) => h("tr", null, cols.map((c) => h("td", { class: typeof r[c] === "number" ? "num" : "" }, r[c] == null || r[c] === "" ? h("span", { class: "mini" }, "-") : typeof r[c] === "number" ? fmtN(r[c]) : str(r[c]))))) : [h("tr", null, h("td", { colspan: cols.length }, "映射后没有有效行，请检查必填字段"))])); }
+// 把映射好的行并入达人库 / 投放数据（去重合并），返回 { count, added }；演示与手动导入共用
+function mergeImported(target, rows, source) {
+  if (target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(DB.metrics.map((r) => [key(r), r])); let added = 0; for (const r of rows) { if (!map.has(key(r))) added++; map.set(key(r), { ...r, source }); } DB.metrics = [...map.values()].sort((a, b) => (a.date < b.date ? -1 : 1)); return { count: rows.length, added }; }
+  const key = (r) => `${r.name}|${r.platform}`; const map = new Map(DB.kols.map((r) => [key(r), r])); let added = 0; for (const r of rows) { const o = map.get(key(r)); if (!o) added++; map.set(key(r), { ...(o || { id: uid("k"), status: "待评估", selected: false }), ...r, source }); } DB.kols = [...map.values()]; return { count: rows.length, added };
+}
 async function commitImport() {
   if (!(repo.mode === "local" || requireWrite())) return; const rows = mapRows(im.rows, im.target, im.mapping); if (!rows.length) return toast("没有可导入的有效行");
-  if (im.target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(DB.metrics.map((r) => [key(r), r])); for (const r of rows) map.set(key(r), { ...r, source: im.source }); DB.metrics = [...map.values()].sort((a, b) => (a.date < b.date ? -1 : 1)); if (await save("metrics")) toast(`已导入 ${rows.length} 行投放数据`); }
-  else { const key = (r) => `${r.name}|${r.platform}`; const map = new Map(DB.kols.map((r) => [key(r), r])); let added = 0; for (const r of rows) { const o = map.get(key(r)); if (!o) added++; map.set(key(r), { ...(o || { id: uid("k"), status: "待评估", selected: false }), ...r, source: im.source }); } DB.kols = [...map.values()]; if (await save("kols")) toast(`已导入 ${rows.length} 位达人（新增 ${added}）`); }
+  const r = mergeImported(im.target, rows, im.source);
+  if (im.target === "metrics") { if (await save("metrics")) toast(`已导入 ${r.count} 行投放数据`); } else { if (await save("kols")) toast(`已导入 ${r.count} 位达人（新增 ${r.added}）`); }
   im.rows = []; im.headers = []; $("#imMapCard").hidden = true; $("#imPaste").value = ""; renderImportStats(); renderConnectors();
 }
 function renderImportStats() { const dates = DB.metrics.map((r) => r.date).sort(); const last = DB.metrics.length ? `${dates[0]} ~ ${dates[dates.length - 1]}` : "无";

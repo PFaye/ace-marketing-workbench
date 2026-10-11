@@ -1,12 +1,12 @@
 <script>
 // ===================== 开始页：Hero + 一键出全套（流水线实时播放）+ 把真实业务搬进来（折叠） =====================
 const DEMO_BRAND = "泡研社";
-const hasDemoData = () => DB.kols.some((x) => x.source === "示例数据") || DB.metrics.some((r) => r.source === "示例") || DB.batches.some((x) => x.source === "示例") || DB.insights.some((x) => x.source === "示例") || obj(DB.plan).mode === "demo";
+const hasDemoData = () => DB.kols.some((x) => isDemoSource(x.source)) || DB.metrics.some((r) => isDemoSource(r.source)) || DB.batches.some((x) => isDemoSource(x.source)) || DB.insights.some((x) => isDemoSource(x.source)) || obj(DB.plan).mode === "demo";
 function startChecks() { const pj = obj(DB.project), pl = obj(DB.plan);
   return [
     { done: (pl.mode && pl.mode !== "demo") || (pj.brand && pj.brand !== DEMO_BRAND), t: "粘一段你的 Brief，生成方案", s: "上面一键出全套，或到「全案策划」单独生成。客户有意见改「项目设定」。", tool: "plan" },
-    { done: DB.kols.some((x) => x.source && x.source !== "示例数据"), t: "导入你的达人名单", s: "蒲公英 / 星图导出表拖进「数据接入」→ 导入 → 达人匹配一键选人。", tool: "import" },
-    { done: DB.metrics.some((r) => r.source && r.source !== "示例"), t: "导入你的投放日报", s: "后台下载的日报表拖进「数据接入」选「投放日报」→ 投放监测自动告警。", tool: "import" },
+    { done: DB.kols.some((x) => x.source && !isDemoSource(x.source)), t: "导入你的达人名单", s: "蒲公英 / 星图导出表拖进「数据接入」→ 导入 → 达人匹配一键选人。", tool: "import" },
+    { done: DB.metrics.some((r) => r.source && !isDemoSource(r.source)), t: "导入你的投放日报", s: "后台下载的日报表拖进「数据接入」选「投放日报」→ 投放监测自动告警。", tool: "import" },
     { done: !!obj(obj(DB.settings).webhook).url, t: "填群机器人，日报自动推", s: "投放监测 → 推送设置 → 粘飞书 / 企微 Webhook → 勾自动 → 保存。", tool: "monitor" }
   ]; }
 // Hero 上的 AI 状态胶囊（AI 可用性变化时由 refreshAvailability 调用）
@@ -36,17 +36,42 @@ async function clearDemoData() {
   for (const c of ["kols", "metrics", "batches", "insights", "plan", "project", "alerts", "briefs"]) await save(c);
   renderAll(); toast("示例数据已清空");
 }
-async function loadDemoData() {
-  if (!(repo.mode === "local" || requireWrite())) return; $("#startDemo").disabled = true;
+async function loadDemoData(force) {
+  const persist = repo.mode === "local" || repo.canWrite; if (!persist && !force) { requireWrite(); return; } $("#startDemo").disabled = true;
   const seed = materializeSeed(SEED_TEMPLATE, repo.now || todayStr()); stripDemo(DB);
   DB.project = seed.project; DB.plan = seed.plan; DB.kols = [...DB.kols, ...seed.kols]; DB.metrics = [...DB.metrics, ...seed.metrics].sort((a, b) => (a.date < b.date ? -1 : 1)); DB.batches = [...seed.batches, ...DB.batches]; DB.insights = [...seed.insights, ...DB.insights];
   if (!arr(DB.rules).length) DB.rules = seed.rules;
   const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts;
   DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }, ...DB.briefs.filter((b) => b.id !== "brief-demo")];
   fc.batch = null; ins.current = null;
-  for (const c of ["project", "plan", "kols", "metrics", "rules", "alerts", "briefs", "batches", "insights"]) await save(c);
-  renderAll(); toast("示例数据已载入，每个页面都有内容了");
+  if (persist) for (const c of ["project", "plan", "kols", "metrics", "rules", "alerts", "briefs", "batches", "insights"]) await save(c);
+  renderAll(); toast(persist ? "示例数据已载入，每个页面都有内容了" : "示例数据已载入（访客模式，刷新后消失）");
 }
+// ---- 案例演示：导入示例达人名单 + 投放日报（不动方案），再一键出全套 ----
+function demoPrepareData() {
+  const persist = repo.mode === "local" || repo.canWrite; let kols = 0, rows = 0;
+  const pgy = parseTable(SAMPLE_TABLES.pgy); kols += mergeImported("kols", mapRows(pgy.rows, "kols", inferMapping(pgy.headers, "kols")).map((r) => ({ ...r, platform: r.platform || "小红书" })), "演示 · 蒲公英导出格式").count;
+  const xt = parseTable(SAMPLE_TABLES.xingtu); kols += mergeImported("kols", mapRows(xt.rows, "kols", inferMapping(xt.headers, "kols")), "演示 · 星图导出格式").count;
+  const mt = parseTable(SAMPLE_TABLES.metrics()); rows += mergeImported("metrics", mapRows(mt.rows, "metrics", inferMapping(mt.headers, "metrics")), "演示 · 投放日报格式").count;
+  const d = latestDate(DB.metrics); const ev = evaluateRules(DB.rules, DB.metrics, d); const ids = new Set(DB.alerts.map((a) => a.id)); for (const a of ev.alerts) if (!ids.has(a.id)) DB.alerts.unshift(a);
+  if (!DB.briefs.some((b) => b.date === d)) DB.briefs.unshift({ id: uid("b"), date: d, text: templateBrief({ date: d, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(d, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length });
+  return { kols, rows, alerts: ev.alerts.length, persist };
+}
+async function waitForAi(ms) { const t0 = Date.now(); while (IN_ARTIFACT && state.sample === undefined && Date.now() - t0 < ms) await new Promise((r) => setTimeout(r, 150)); return ai.ready(); }
+async function runDemo() {
+  if (one.running) return; closeWelcome(); showTool("start"); $("#startMore").open = false;
+  const info = demoPrepareData(); if (info.persist) for (const c of ["kols", "metrics", "alerts", "briefs"]) await save(c);
+  renderAll(); toast(`演示：已导入 ${info.kols} 位达人、${info.rows} 行投放日报` + (info.persist ? "" : "（访客模式，刷新后消失）"));
+  const ready = await waitForAi(4000);
+  if (!ready) { await loadDemoData(true); $("#oneHint").textContent = "AI 未接入，演示用的是预生成的示例方案与稿件；接入模型后可一键实时生成。"; return; }
+  one.demoNote = `演示 · 已导入 ${info.kols} 位达人、${info.rows} 行日报`; $("#oneBrief").value = briefToQuick(SAMPLE_BRIEFS[one.sampleIdx % SAMPLE_BRIEFS.length]); cancelAnimationFrame(one.typeRaf); one.typing = null; oneButton("一键出全套", false);
+  try { await runOneClick(); } finally { one.demoNote = ""; }
+  toast("演示完成：方案、稿件、达人组合、监测都在左侧各页里");
+}
+function openWelcome() { const m = $("#welcomeModal"); if (!m) return; const canWrite = repo.mode === "local" || repo.canWrite; const hasReal = DB.kols.some((x) => x.source && !isDemoSource(x.source)) || (obj(DB.plan).mode === "live");
+  $("#wlHint").textContent = [IN_ARTIFACT && state.sample === undefined ? "" : ai.ready() ? "" : "AI 还没接入：演示会用预生成的示例方案。", repo.mode === "server" && !canWrite ? "访客模式：演示数据只在本次浏览中保留。" : "", hasReal ? "注意：会生成一套新方案，覆盖当前项目设定。" : ""].filter(Boolean).join(" ");
+  m.hidden = false; store.set("ace.welcomed", true); setTimeout(() => $("#wlDemo").focus(), 50); }
+function closeWelcome() { const m = $("#welcomeModal"); if (m) m.hidden = true; }
 async function resetAllData() {
   if (repo.mode === "local") { const keep = { settings: DB.settings, rules: DB.rules, connectors: DB.connectors }; repo.resetLocal(false); Object.assign(DB, keep); store.set("ace.db", DB); }
   else { DB.project = null; DB.plan = null; DB.kols = []; DB.metrics = []; DB.alerts = []; DB.briefs = []; DB.batches = []; DB.insights = []; for (const c of ["project", "plan", "kols", "metrics", "alerts", "briefs", "batches", "insights"]) await save(c); }
@@ -72,7 +97,7 @@ function oneButton(label, busy) { const b = $("#oneRun"); $("span", b).textConte
 async function runOneClick() {
   if (!ai.ready()) { refreshAvailability(); return; } finishTyping(); const text = $("#oneBrief").value.trim(); if (!text) { $("#oneHint").textContent = "先粘一段 Brief。"; $("#oneBrief").focus(); return; }
   one.running = true; one.st = {}; const run = $("#oneRun"); run.disabled = true; run.classList.remove("ready"); oneButton("生成中…", true);
-  $("#oneCard").classList.add("running"); buildPipe(); $("#onePipe").hidden = false; const live = $("#oneLive"); live.hidden = false; live.classList.remove("idle"); $("#oneLive b").textContent = "AI"; liveText("连接模型…"); $("#oneFeed").hidden = true; $("#oneFeed").replaceChildren(); $("#oneSummary").hidden = true; $("#oneHint").textContent = "生成中，切到别的页面也会继续。";
+  $("#oneCard").classList.add("running"); buildPipe(); $("#onePipe").hidden = false; const live = $("#oneLive"); live.hidden = false; live.classList.remove("idle"); $("#oneLive b").textContent = "AI"; liveText("连接模型…"); $("#oneFeed").hidden = true; $("#oneFeed").replaceChildren(); $("#oneSummary").hidden = true; $("#oneHint").textContent = (one.demoNote ? one.demoNote + " · " : "") + "生成中，切到别的页面也会继续。";
   aiLive.subs.add(liveSub); const t0 = Date.now(); const fast = $("#oneFast").checked; $("#fastMode").checked = fast;
   let brief = null, drafts = 0, plat = "小红书", picked = 0, briefOk = false, strategyOk = false, dn = 0;
   const finish = () => { aiLive.subs.delete(liveSub); one.running = false; one.doneOnce = true; $("#oneCard").classList.remove("running"); run.disabled = !ai.ready(); run.classList.toggle("ready", ai.ready()); live.classList.add("idle"); renderOutput(); };
@@ -88,7 +113,7 @@ async function runOneClick() {
   finish(); const secs = Math.round((Date.now() - t0) / 1000); oneButton("再出一套", false); $("#oneHint").textContent = ""; $("#oneLive b").textContent = "完成"; liveText(`${secs} 秒 · 方案 ${dn} 章 · 稿件 ${drafts} 条${strategyOk ? " · 达人策略 1 份" : ""}${picked ? ` · 达人组合 ${picked} 位` : ""}${briefOk ? " · 合作 Brief 1 份" : ""}`);
   const sum = $("#oneSummary"); sum.hidden = false; sum.replaceChildren(
     h("div", { class: "stats" }, statTile("方案", `${dn} 章`, dn === 5 ? "五章齐全" : dn ? "部分完成" : "未生成"), statTile("稿件", String(drafts), `${plat} · 种草 / 回复 / 信息流`), statTile("达人策略", strategyOk ? "1 份" : "0", strategyOk ? "金字塔 · 筛选标准" : "未生成"), picked ? statTile("达人组合", `${picked} 位`, briefOk ? "合作 Brief 已写" : "按预算勾选") : statTile("达人组合", "—", DB.kols.length ? "未选出" : "导入名单后可选人"), statTile("用时", `${secs} 秒`, fast ? "快速模式" : "深度模式")),
-    h("div", { class: "acts" }, h("span", { class: "cnt" }, "已保存，到各页细看、修改、导出。"), h("button", { type: "button", class: "btn sm primary", onclick: () => showTool("plan") }, "看方案"), h("button", { type: "button", class: "btn sm", onclick: () => showTool("factory") }, "看稿件"), h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "strategy"); $("#kolLib").hidden = true; $("#kolStrategy").hidden = false; } }, "看达人策略"), picked ? h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "lib"); $("#kolLib").hidden = false; $("#kolStrategy").hidden = true; } }, "看组合") : null));
+    h("div", { class: "acts" }, h("span", { class: "cnt" }, "已保存，到各页细看、修改、导出。"), h("button", { type: "button", class: "btn sm primary", onclick: () => showTool("plan") }, "看方案"), h("button", { type: "button", class: "btn sm", onclick: () => showTool("factory") }, "看稿件"), h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "strategy"); $("#kolLib").hidden = true; $("#kolStrategy").hidden = false; } }, "看达人策略"), picked ? h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "lib"); $("#kolLib").hidden = false; $("#kolStrategy").hidden = true; } }, "看组合") : null, DB.metrics.length ? h("button", { type: "button", class: "btn sm", onclick: () => showTool("monitor") }, "看监测") : null));
   renderOutput();
 }
 // ---- Brief 预填：打字机效果 ----
@@ -98,7 +123,8 @@ function finishTyping() { if (!one.typing) return; cancelAnimationFrame(one.type
 function defaultBrief() { const pj = obj(DB.project); return pj.brand && obj(DB.plan).mode !== "demo" ? briefToQuick(pj) : briefToQuick(SAMPLE_BRIEFS[one.sampleIdx % SAMPLE_BRIEFS.length]); }
 function initStart() {
   TOOL_RENDER.start = () => { renderStart(); renderOutput(); if (!$("#oneBrief").value && !one.running) typeInto($("#oneBrief"), defaultBrief()); fxStart(); };
-  $("#startDemo").addEventListener("click", loadDemoData); $("#startClear").addEventListener("click", clearDemoData); $("#oneRun").addEventListener("click", runOneClick);
+  $("#startDemo").addEventListener("click", () => loadDemoData(false));
+  $("#wlDemo").addEventListener("click", runDemo); $("#wlSkip").addEventListener("click", closeWelcome); $("#wlTour").addEventListener("click", () => { closeWelcome(); tourStart(); }); $("#welcomeModal").addEventListener("click", (e) => { if (e.target === $("#welcomeModal")) closeWelcome(); }); $("#startClear").addEventListener("click", clearDemoData); $("#oneRun").addEventListener("click", runOneClick);
   $("#oneSwap").addEventListener("click", () => { if (one.running) return; one.sampleIdx = (one.sampleIdx + 1) % SAMPLE_BRIEFS.length; typeInto($("#oneBrief"), briefToQuick(SAMPLE_BRIEFS[one.sampleIdx])); oneButton("一键出全套", false); });
   $("#oneBrief").addEventListener("focus", finishTyping); $("#oneBrief").addEventListener("input", () => { if (!one.running && one.doneOnce) oneButton("一键出全套", false); });
   applyTheme(store.get("ace.theme") || ""); $("#themeBtn").addEventListener("click", () => applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));

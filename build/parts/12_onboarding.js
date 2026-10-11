@@ -31,7 +31,7 @@ function tourShow(i) {
 }
 function tourEnd() { $("#tour").hidden = true; $("#tourCard").classList.remove("center"); tour.i = -1; store.set("ace.welcomed", true); }
 function tourStart() { tourShow(0); }
-function onboardingStart() { if (repo.mode === "server" && repo.setupNeeded) { openSetup(); return; } if (!store.get("ace.welcomed")) tourStart(); }
+function onboardingStart() { if (repo.mode === "server" && repo.setupNeeded) { openSetup(); return; } if (!store.get("ace.welcomed")) openWelcome(); }
 
 // ---- 初始化向导（服务端首次启动） ----
 const su = { provider: "deepseek" };
@@ -44,11 +44,11 @@ async function doSetup(withLlm) {
   try { const r = await fetch("/api/setup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || "初始化失败");
     repo.setToken(token); await repo.reload(); decideAiMode(); refreshAuthUi(); refreshAvailability(); renderAll();
     if (withLlm) { st.textContent = "口令已设置，正在测试模型…"; try { const { text } = await ai.text("请只回复两个字：连接成功", { tier: "quick" }); st.textContent = "模型连接成功：" + text.trim().slice(0, 20); } catch (e) { st.textContent = "口令已设置，但模型测试失败：" + errCopy(e) + " 可稍后在「设置」里修改。"; $("#suSave").disabled = false; $("#suLater").disabled = false; return; } }
-    toast("初始化完成"); setTimeout(() => { $("#setupModal").hidden = true; tourStart(); }, 900); }
+    toast("初始化完成"); setTimeout(() => { $("#setupModal").hidden = true; openWelcome(); }, 900); }
   catch (e) { st.textContent = e.message || "初始化失败"; $("#suSave").disabled = false; $("#suLater").disabled = false; }
 }
 function initOnboarding() {
-  $("#helpBtn").addEventListener("click", tourStart);
+  $("#helpBtn").addEventListener("click", openWelcome);
   const openTut = () => { $("#tutModal").hidden = false; }; $("#tutBtn").addEventListener("click", openTut); $("#tutClose").addEventListener("click", () => { $("#tutModal").hidden = true; }); $("#tutModal").addEventListener("click", (e) => { if (e.target === $("#tutModal")) $("#tutModal").hidden = true; });
   $("#tourSkip").addEventListener("click", tourEnd); $("#tourPrev").addEventListener("click", () => { if (tour.i > 0) tourShow(tour.i - 1); }); $("#tourNext").addEventListener("click", () => { if (tour.i >= TOUR_STEPS.length - 1) tourEnd(); else tourShow(tour.i + 1); });
   document.addEventListener("keydown", (e) => { if (tour.i < 0) return; if (e.key === "Escape") tourEnd(); if (e.key === "ArrowRight") $("#tourNext").click(); if (e.key === "ArrowLeft") $("#tourPrev").click(); });

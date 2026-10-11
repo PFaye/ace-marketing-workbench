@@ -121,7 +121,8 @@ const repo = {
 };
 // 去掉带「示例」标记的数据（本地升级、清空示例共用）
 const DEMO_METRIC_KEYS = new Set(["抖音|达人短剧 + 挑战赛", "小红书|KOC 铺量 + 搜索", "程序化广告|信息流 oCPM"]); // 旧版本示例投放数据没有 source 标记，按指纹识别
-function stripDemo(db) { db.kols = arr(db.kols).filter((x) => x.source !== "示例数据"); db.metrics = arr(db.metrics).filter((r) => r.source !== "示例" && !(!r.source && DEMO_METRIC_KEYS.has(`${r.platform}|${r.campaign}`))); db.batches = arr(db.batches).filter((x) => x.source !== "示例"); db.insights = arr(db.insights).filter((x) => x.source !== "示例");
+const isDemoSource = (s) => /^(示例|演示)/.test(String(s || ""));
+function stripDemo(db) { db.kols = arr(db.kols).filter((x) => !isDemoSource(x.source)); db.metrics = arr(db.metrics).filter((r) => !isDemoSource(r.source) && !(!r.source && DEMO_METRIC_KEYS.has(`${r.platform}|${r.campaign}`))); db.batches = arr(db.batches).filter((x) => !isDemoSource(x.source)); db.insights = arr(db.insights).filter((x) => !isDemoSource(x.source));
   if (obj(db.plan).mode === "demo") { db.plan = null; if (obj(db.project).brand === (typeof DEMO_BRAND === "string" ? DEMO_BRAND : "泡研社")) db.project = null; }
   db.briefs = arr(db.briefs).filter((b) => b.id !== "brief-demo" && b.id !== "brief-seed"); if (!db.metrics.length) db.alerts = []; }
 // 实时输出总线：任何一次 AI 流式输出都会广播到这里（开始页的「AI 正在写」用）
