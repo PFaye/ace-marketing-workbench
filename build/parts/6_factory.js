@@ -1,6 +1,6 @@
 <script>
 // ===================== 内容工厂（批量生成 + 审校交付） =====================
-const fc = { type: FACTORY_TYPES[0], platforms: new Set(["小红书"]), personas: new Set(), count: 20, batch: null, filter: "all", running: false, ctl: null, editing: null };
+const fc = { type: FACTORY_TYPES[0], platforms: new Set(["小红书"]), personas: new Set(), count: 20, batch: null, filter: "all", running: false, ctl: null, editing: null, matrix: false, types: new Set(["koc", "reply", "feed"]) };
 let renderFcPersona;
 function fcTypeDef(id) { return FACTORY_TYPES.find((t) => t.id === id) || FACTORY_TYPES[0]; }
 function setFcType(id, keepPersona) { fc.type = fcTypeDef(id); $$("#fcType button").forEach((b) => b.classList.toggle("on", b.dataset.v === fc.type.id)); if (!keepPersona) { fc.personas.clear(); fc.type.personas.slice(0, 6).forEach((p) => fc.personas.add(p)); } renderFcPersona = chipGroup($("#fcPersona"), fc.type.personas, fc.personas); }
@@ -24,12 +24,12 @@ function factoryPrompt(p) { return `你是一家头部营销传播集团的内�
 【输出格式】每行一个 JSON 对象，共 ${p.count} 行；不要数组、不要编号、不要 markdown 代码块、不要任何其他文字：
 {"persona":"所用视角","title":"标题≤20字","body":"正文","tags":["标签1","标签2","标签3"]}`; }
 function safeLine(line) { let s = line.trim(); if (!s || s.startsWith("```")) return null; s = s.replace(/^[\d]+[.、)]\s*/, "").replace(/,\s*$/, ""); const a = s.indexOf("{"), b = s.lastIndexOf("}"); if (a < 0 || b < a) return null; try { const o = JSON.parse(s.slice(a, b + 1)); return o && typeof o === "object" && (o.body || o.title) ? o : null; } catch (e) { return null; } }
-function mkItem(o) { const it = { id: uid("n"), persona: str(obj(o).persona), title: str(obj(o).title), body: str(obj(o).body), tags: arr(obj(o).tags).map(str), status: "待审校", edited: false }; it.flags = checkFlags(it.title + "\n" + it.body); return it; }
+function mkItem(o, extra) { const it = { id: uid("n"), persona: str(obj(o).persona), title: str(obj(o).title), body: str(obj(o).body), tags: arr(obj(o).tags).map(str), status: "待审校", edited: false, ...(extra || {}) }; it.flags = checkFlags(it.title + "\n" + it.body); return it; }
 function itemText(it) { return [str(it.title), str(it.body), arr(it.tags).map((t) => "#" + str(t)).join(" ")].filter(Boolean).join("\n"); }
 async function persistBatch() { if (!fc.batch) return; const i = DB.batches.findIndex((b) => b.id === fc.batch.id); if (i >= 0) DB.batches[i] = fc.batch; else DB.batches.unshift(fc.batch); DB.batches = DB.batches.slice(0, 40); if (repo.mode === "local" || repo.canWrite) { await save("batches"); fc.batch.unsaved = false; } else fc.batch.unsaved = true; renderFcToolbar(); }
 function noteCard(it, i) {
   const editing = fc.editing === it.id; const card = h("div", { class: "note" + (it.status === "已审校" ? " reviewed" : "") });
-  const head = h("div", { class: "nh" }, h("span", { class: "idx" }, String(i + 1).padStart(2, "0")), h("span", { class: "who" }, str(it.persona, "视角")), h("span", { class: "pill " + (it.status === "已审校" ? "ok" : "warn") }, it.status), it.edited ? h("span", { class: "mini" }, "已改稿") : null, h("button", { type: "button", class: "btn ghost sm", onclick: () => copyText(itemText(it), "已复制第 " + (i + 1) + " 条") }, "复制"));
+  const head = h("div", { class: "nh" }, h("span", { class: "idx" }, String(i + 1).padStart(2, "0")), h("span", { class: "who" }, str(it.persona, "视角")), it.typeLabel && h("span", { class: "plat" }, str(it.platform ? it.platform + " · " : "") + str(it.typeLabel)), h("span", { class: "pill " + (it.status === "已审校" ? "ok" : "warn") }, it.status), it.edited ? h("span", { class: "mini" }, "已改稿") : null, h("button", { type: "button", class: "btn ghost sm", onclick: () => copyText(itemText(it), "已复制第 " + (i + 1) + " 条") }, "复制"));
   card.append(head);
   if (editing) {
     const ti = h("input", { class: "ttl", type: "text", value: it.title }); const ta = h("textarea", null, it.body);
@@ -53,11 +53,40 @@ function renderFcToolbar() { const b = fc.batch; const items = b ? b.items : [];
 function renderFactory() { const wrap = $("#fcNotes"); const items = fc.batch ? fc.batch.items : []; const list = items.filter((x) => fc.filter === "all" || (fc.filter === "reviewed") === (x.status === "已审校"));
   wrap.replaceChildren(...(list.length ? list.map((it) => noteCard(it, items.indexOf(it))) : [emptyNode(items.length ? "此状态下没有稿件" : "还没有稿件", items.length ? "" : "填写左侧信息后点击「开始批量生成」")])); renderFcToolbar(); }
 function batchCsv(b) { return toCsv(b.items.map((it, i) => ({ idx: i + 1, persona: it.persona, title: it.title, body: it.body, tags: arr(it.tags).join(" "), status: it.status, flags: arr(it.flags).map((f) => f.word).join(" "), platform: b.platform, type: b.typeLabel })), ["idx", "platform", "type", "persona", "title", "body", "tags", "status", "flags"], { idx: "序号", platform: "平台", type: "类型", persona: "视角", title: "标题", body: "正文", tags: "标签", status: "审校状态", flags: "敏感词提示" }); }
+// 生成一组稿件到 batch（供单组与矩阵共用）
+async function generateGroup(p, batch, signal, onItem, onText) {
+  let pending = "";
+  const push = (line) => { const o = safeLine(line); if (!o) return; const it = mkItem(o, p.extra); batch.items.push(it); onItem && onItem(it); };
+  const { text } = await ai.text(factoryPrompt(p), { tier: p.tier, signal, cache: false, onText: ({ delta, text }) => { onText && onText(text); const lines = (pending + delta).split("\n"); pending = lines.pop(); lines.forEach(push); } });
+  if (pending.trim()) push(pending); if (!batch.items.length && text) text.split("\n").forEach(push);
+}
+function matrixCombos() { const types = FACTORY_TYPES.filter((t) => fc.types.has(t.id)); const plats = [...fc.platforms]; const out = []; for (const t of types) for (const pl of plats) out.push({ type: t, platform: pl }); return out; }
+function renderMatrixHint() { const n = matrixCombos().length * 5; const el = $("#fcMatrixHint"); if (el) el.textContent = n ? `${fc.types.size} 类型 × ${fc.platforms.size} 平台 × 5 条 = 将生成 ${n} 条` : "请选类型和平台"; }
+// 程序化矩阵生成（开始页「一键出全套」也用）
+async function runMatrix({ types, platforms, per = 5, context, must, avoid, tier, signal, onItem, onText, onGroup }) {
+  const combos = []; for (const tid of types) { const t = fcTypeDef(tid); for (const pl of platforms) combos.push({ t, pl }); }
+  const batch = { id: uid("batch"), createdAt: new Date().toISOString(), type: "matrix", typeLabel: `矩阵 · ${types.length} 类型 × ${platforms.length} 平台`, platform: platforms.join(" / "), context, source: "生成", unsaved: true, items: [] };
+  fc.batch = batch; let gi = 0;
+  for (const { t, pl } of combos) { if (signal && signal.aborted) break; gi++; onGroup && onGroup(gi, combos.length, t, pl);
+    const personas = t.personas.slice(0, 6);
+    try { await generateGroup({ type: t, platforms: [pl], personas, count: per, context, must, avoid, tier, extra: { typeLabel: t.label, platform: pl, typeId: t.id } }, batch, signal, onItem, onText); } catch (e) { if (e && e.code === "cancelled") break; console.warn("matrix group failed", t.id, pl, e); } }
+  await persistBatch(); return batch;
+}
 async function runFactory() {
   if (!ai.ready()) { refreshAvailability(); return; }
   const p = { type: fc.type, platforms: [...fc.platforms], personas: [...fc.personas], count: fc.count, context: $("#fcBrand").value.trim(), must: $("#fcMust").value.trim(), avoid: $("#fcAvoid").value.trim() };
   if (!p.platforms.length) { $("#fcHint").className = "hint err"; $("#fcHint").textContent = "请选择至少一个平台。"; return; } if (!p.personas.length) { $("#fcHint").className = "hint err"; $("#fcHint").textContent = "请选择至少一个视角。"; return; }
   const ctl = new AbortController(); fc.ctl = ctl; fc.running = true; fc.editing = null; fc.filter = "all"; segSet($("#fcFilter"), "all"); const t0 = Date.now();
+  if (fc.matrix) {
+    if (!fc.types.size) { $("#fcHint").className = "hint err"; $("#fcHint").textContent = "请选择至少一个类型。"; fc.running = false; return; }
+    $("#fcRun").disabled = true; $("#fcStop").hidden = false; $("#fcHint").className = "hint"; const wrap0 = $("#fcNotes"); const total = matrixCombos().length * 5; const g0 = genNode(`矩阵生成中，共 ${total} 条…`); wrap0.replaceChildren(g0); const pill0 = $("#fcPill"); pill0.hidden = false; pill0.className = "pill accent live"; pill0.textContent = "生成中";
+    try { await runMatrix({ types: [...fc.types], platforms: p.platforms, per: 5, context: p.context, must: p.must, avoid: p.avoid, tier: $("#fcFast").checked ? "quick" : "default", signal: ctl.signal,
+        onGroup: (i, n, t, pl) => { g0._st.textContent = `第 ${i} / ${n} 组：${pl} · ${t.label}`; $("#fcHint").textContent = `生成中：${pl} · ${t.label}（${i}/${n} 组）`; },
+        onItem: (it) => { wrap0.insertBefore(noteCard(it, fc.batch.items.length - 1), g0); $("#fcCnt").textContent = `已生成 ${fc.batch.items.length} / ${total} 条`; }, onText: (text) => feed(g0, text) });
+      g0.remove(); renderFactory(); $("#fcHint").textContent = `完成 ${fc.batch.items.length} 条，用时 ${Math.round((Date.now() - t0) / 1000)} 秒。`; }
+    catch (e) { g0.remove(); renderFactory(); $("#fcHint").className = "hint err"; $("#fcHint").textContent = errCopy(e); fatalCode(e); }
+    fc.running = false; fc.ctl = null; $("#fcRun").disabled = !ai.ready(); $("#fcStop").hidden = true; return;
+  }
   fc.batch = { id: uid("batch"), createdAt: new Date().toISOString(), type: p.type.id, typeLabel: p.type.label, platform: p.platforms.join(" / "), context: p.context, source: "生成", unsaved: true, items: [] };
   $("#fcRun").disabled = true; $("#fcStop").hidden = false; $("#fcHint").className = "hint"; $("#fcHint").textContent = "生成中，可随时停止。";
   const wrap = $("#fcNotes"); const g = genNode(`Content Agent 正在写 ${p.count} 条「${p.type.label}」…`); wrap.replaceChildren(g); renderFcToolbar(); const pill = $("#fcPill"); pill.hidden = false; pill.className = "pill accent live"; pill.textContent = "生成中";
@@ -74,6 +103,9 @@ function initFactory() {
   setFcType("koc"); fc.personas.clear(); EXAMPLE_FACTORY.items.slice(0, 6).forEach((it) => fc.personas.add(it.persona)); renderFcPersona();
   $("#fcBrand").value = projectContext() || EXAMPLE_FACTORY.context; $("#fcMust").value = obj(DB.project).keyMessages || "0 糖 0 卡、5% 真实柚子汁、便利店 6 元、清醒地微醺";
   $$("#fcCount button").forEach((b) => b.addEventListener("click", () => { fc.count = Number(b.dataset.v); $$("#fcCount button").forEach((x) => x.classList.toggle("on", x === b)); }));
+  chipGroup($("#fcTypes"), FACTORY_TYPES.map((t) => t.label), new Set(FACTORY_TYPES.filter((t) => fc.types.has(t.id)).map((t) => t.label)), { onChange: () => { fc.types = new Set(FACTORY_TYPES.filter((t) => $$("#fcTypes .chip.on").some((c) => c.textContent === t.label)).map((t) => t.id)); renderMatrixHint(); } });
+  $("#fcMatrix").addEventListener("change", (e) => { fc.matrix = e.target.checked; $("#fcTypesField").hidden = !fc.matrix; $("#fcType").parentElement.hidden = fc.matrix; $("#fcCount").parentElement.hidden = fc.matrix; $("#fcRun").textContent = fc.matrix ? "生成矩阵" : "生成"; renderMatrixHint(); });
+  $("#fcPlatform").addEventListener("click", renderMatrixHint);
   segInit($("#fcFilter"), (v) => { fc.filter = v; renderFactory(); });
   TOOL_RENDER.factory = () => { $("#fcCtxLine").textContent = obj(DB.project).brand ? "背景：当前项目「" + DB.project.brand + "」，可在「更多选项」里改" : "背景：在「更多选项」里填"; if (!fc.running && (!fc.batch || !fc.batch.unsaved)) { fc.batch = DB.batches[0] ? JSON.parse(JSON.stringify(DB.batches[0])) : null; } renderFactory(); };
   $("#fcBatchSel").addEventListener("change", (e) => { const b = DB.batches.find((x) => x.id === e.target.value); if (b) { fc.batch = JSON.parse(JSON.stringify(b)); fc.editing = null; renderFactory(); } });

@@ -34,6 +34,14 @@
       <div class="tool-head"><div><h2>开始</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
       <div class="stack">
         <div class="notice" id="startAi"><div id="startAiText"></div></div>
+        <div class="card"><div class="card-head"><h3>一键出全套</h3><span class="sub">粘一段 Brief，方案、稿件、达人策略一起长出来</span></div>
+          <div class="card-body tight">
+            <textarea id="oneBrief" style="min-height:84px;width:100%;padding:9px 12px;border-radius:10px;border:1px solid transparent;background:var(--surface-2);color:var(--fg);font-size:13.5px;line-height:1.5;resize:vertical" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
+            <div class="toolbar"><button type="button" class="btn primary" id="oneRun">一键出全套</button><label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 约 1-2 分钟</span></label><span class="hint" id="oneHint"></span></div>
+            <div class="welcome-steps" id="oneProgress" hidden></div>
+            <div class="stats" id="oneSummary" hidden></div>
+          </div></div>
+        <div class="stats" id="startOutput"></div>
         <div class="card"><div class="card-head"><h3>三步搬进来</h3><span class="sub">做完一步自动打勾</span></div><div class="card-body tight" id="startSteps"></div></div>
         <div class="row-cards">
           <div class="card"><div class="card-head"><h3>平台表格怎么导出</h3></div><div class="card-body tight">
@@ -113,6 +121,8 @@
         <form class="in" id="factoryForm" autocomplete="off">
           <p class="hint" id="fcCtxLine"></p>
           <div class="field"><span class="lbl">稿件类型</span><div class="seg block" id="fcType"></div></div>
+          <label class="switch" for="fcMatrix"><input type="checkbox" id="fcMatrix"><span><b>矩阵模式</b> · 多类型 × 多平台，每组 5 条</span></label>
+          <div class="field" id="fcTypesField" hidden><span class="lbl">类型 <em>多选</em></span><div class="chips" id="fcTypes"></div><p class="hint" id="fcMatrixHint"></p></div>
           <div class="field"><span class="lbl">数量</span><div class="seg block" id="fcCount"><button type="button" data-v="10">10</button><button type="button" data-v="20" class="on">20</button><button type="button" data-v="30">30</button></div></div>
           <details id="fcAdv"><summary class="hint" style="cursor:pointer">更多选项</summary><div style="display:grid;gap:12px;margin-top:10px">
           <div class="field"><label for="fcBrand">背景 <em><button type="button" class="linkbtn" id="syncFactory">从当前项目同步</button></em></label><textarea id="fcBrand" required maxlength="1500" style="min-height:64px"></textarea></div>
