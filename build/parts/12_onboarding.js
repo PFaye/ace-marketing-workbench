@@ -1,18 +1,12 @@
 <script>
 // ===================== 一进来就开始的流程引导（五步，在真实界面上高亮讲解）+ 初始化向导 =====================
 const TOUR_STEPS = [
-  { center: true, stage: "", title: "跟着走一遍完整流程", text: "五步，每步一个动作：粘贴、点一下、拖进来。示例数据已经填好，引导里高亮的按钮可以直接点，不会弄坏任何东西。大约 2 分钟。", cta: "开始" },
-  { tool: "plan", el: "#fQuick", stage: "第 1 步 · 定项目", title: "把客户 Brief 粘进来", text: "随便写一段需求，点「生成全案」，AI 先整理成表单，再由五个智能体接力出洞察、策略、内容、媒介、执行指令。" },
-  { tool: "plan", el: "#projCard", stage: "第 1 步 · 定项目", title: "客户改了方案？在这里改，不用上传", text: "生成后传播主张自动填入。客户换了主张、改了核心信息，或者不用 AI 的方案，就在「项目设定」里改或把客户确认版粘进来，保存。后面所有工具都按这个版本。", open: "#projCard" },
-  { tool: "factory", el: "#fcRun", stage: "第 2 步 · 出内容", title: "点一下，几十条稿件", text: "选类型和数量，开始生成，稿件一条条出现，视角各不相同。" },
-  { tool: "factory", el: "#fcNotes", stage: "第 2 步 · 出内容", title: "逐条审校，只交付审过的", text: "每条可改稿、标为已审校；广告法敏感词自动标出。右上角「导出 CSV」或「复制已审校」交给达人或运营。" },
-  { tool: "import", el: "#imDrop", stage: "第 3 步 · 选达人", title: "平台导出的表拖进来", text: "蒲公英、星图导出的达人表，或投放后台的日报表，拖进来或直接粘贴，字段自动识别，确认后进入达人库 / 投放数据。" },
-  { tool: "kol", el: "#klOneClick", stage: "第 3 步 · 选达人", title: "一键推荐组合", text: "AI 评估名单里每位达人，再按本轮预算自动勾选。CPM / CPE 按公式算，表里可手动增减、记合作状态和跟进日。" },
-  { tool: "kol", el: "#klBrief", stage: "第 3 步 · 选达人", title: "生成合作 Brief", text: "按项目设定和已选达人写一份可直接发给达人或 MCN 的 Brief，含核心信息、交付节点、合规要求。" },
-  { tool: "monitor", el: "#moRun", stage: "第 4 步 · 盯投放", title: "运行监测，出日报", text: "每天把日报表拖进「数据接入」，这里自动按规则告警：CTR 掉了、CPA 超了、负评多了。点一下生成 AI 日报。" },
-  { tool: "monitor", el: "#whDetails", stage: "第 4 步 · 盯投放", title: "填一次机器人，每天自动推", text: "飞书或企微群机器人的 Webhook 填进来，勾选自动运行与自动推送，到点日报自己到群里。", open: "#whDetails" },
-  { tool: "insights", el: "#inRun", stage: "第 5 步 · 看反馈", title: "评论粘进来，看用户怎么说", text: "主题、原话、情绪、负面预警一次出来。负面先回应，机会词写进下一批内容的视角里。" },
-  { center: true, stage: "完成", title: "就这五步", text: "现在页面里都是示例数据，每个工具左侧的主按钮直接点就能看效果。左下角「重看引导」可以重来，「完整流程」是文字版。", cta: "开始使用" }
+  { center: true, stage: "", title: "3 件事：粘 Brief、点按钮、拖表格", text: "示例数据已填好，高亮的按钮可以直接点。", cta: "开始" },
+  { tool: "plan", el: "#fQuick", stage: "1 · 定项目", title: "粘 Brief，点「生成方案」", text: "要改方案，改下面的「项目设定」。" },
+  { tool: "factory", el: "#fcRun", stage: "2 · 出内容", title: "点一下，出几十条稿", text: "审过的才导出。" },
+  { tool: "import", el: "#imDrop", stage: "3 · 接数据", title: "把平台导出的表拖这里", text: "达人名单、投放日报都从这里进。" },
+  { tool: "kol", el: "#klOneClick", stage: "4 · 选达人", title: "一键选人", text: "按预算自动勾选，再生成合作 Brief。" },
+  { tool: "monitor", el: "#moRun", stage: "5 · 盯投放", title: "每天点一下，日报推到群", text: "异常自动告警。", cta: "完成" }
 ];
 const tour = { i: -1, timer: null };
 function tourPlace() {
@@ -25,7 +19,7 @@ function tourPlace() {
 }
 function tourShow(i) {
   tour.i = i; const s = TOUR_STEPS[i]; const layer = $("#tour"); layer.hidden = false; const card = $("#tourCard");
-  $("#tourStep").textContent = (s.stage ? s.stage + " · " : "") + `${i + 1} / ${TOUR_STEPS.length}`; $("#tourTitle").textContent = s.title; $("#tourText").textContent = s.text;
+  $("#tourStep").textContent = s.stage || ""; $("#tourTitle").textContent = s.title; $("#tourText").textContent = s.text;
   $("#tourPrev").disabled = i === 0; $("#tourBar").style.width = Math.round((i + 1) / TOUR_STEPS.length * 100) + "%"; $("#tourNext").textContent = s.cta || (i === TOUR_STEPS.length - 1 ? "完成" : "下一步");
   if (s.center) { clearTimeout(tour.timer); $("#tourSpot").hidden = true; card.classList.add("center"); card.style.left = ""; card.style.top = ""; return; }
   card.classList.remove("center");

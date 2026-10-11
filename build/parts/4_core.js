@@ -176,11 +176,11 @@ function refreshAvailability() {
   const setHints = (t) => { for (const id of ["#runHint", "#fcHint", "#ksHint", "#klHint", "#inHint"]) { const el = $(id); if (el) { el.className = "hint"; el.textContent = t; } } };
   if (IN_ARTIFACT && state.sample === undefined) { s.className = "status"; s.innerHTML = "<i></i>检测 AI 可用性…"; btns.forEach((b) => { b.disabled = true; }); return; }
   if (ai.ready()) { s.className = "status ok"; s.textContent = ""; s.append(h("i"), "AI 可用 · " + ai.label); btns.forEach((b) => { b.disabled = false; });
-    setHints(ai.mode === "artifact" ? "首次调用会请求你授权使用 Claude。" : ai.mode === "server" ? "通过服务端接口实时生成。" : "通过你接入的接口实时生成。"); }
+    setHints(ai.mode === "artifact" ? "首次会请求授权。" : ""); }
   else { s.className = "status warn"; btns.forEach((b) => { b.disabled = true; });
-    if (IN_ARTIFACT) { s.innerHTML = "<i></i>示例模式 · 无法调用 AI"; setHints("实时生成需在 Claude 中登录后使用，当前展示预生成示例。"); }
-    else if (repo.mode === "server") { s.innerHTML = "<i></i>示例模式 · 服务端未配置模型"; setHints("管理员在「设置」里填写模型接口后即可实时生成，当前展示示例数据。"); }
-    else { s.innerHTML = "<i></i>示例模式 · 未接入 API"; setHints("在「设置」→「浏览器本地 API 设置」接入 DeepSeek / Kimi / 通义千问 / Anthropic 后即可实时生成。"); } }
+    if (IN_ARTIFACT) { s.innerHTML = "<i></i>示例模式 · 无法调用 AI"; setHints("登录 Claude 后可生成，当前为示例。"); }
+    else if (repo.mode === "server") { s.innerHTML = "<i></i>示例模式 · 服务端未配置模型"; setHints("在「设置」填模型 Key 后可生成，当前为示例。"); }
+    else { s.innerHTML = "<i></i>示例模式 · 未接入 API"; setHints("在「设置」接入模型后可生成，当前为示例。"); } }
   const mt = $("#modeText"); mt.textContent = IN_ARTIFACT ? "Claude 环境" : repo.mode === "server" ? (repo.canWrite ? "服务端 · 已登录" : repo.authRequired ? "服务端 · 只读访客" : "服务端") : "本地模式 · 数据存于浏览器";
   $("#apiBtn").hidden = IN_ARTIFACT;
 }

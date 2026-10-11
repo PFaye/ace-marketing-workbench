@@ -42,7 +42,7 @@ function noteCard(it, i) {
   const canEdit = repo.mode === "local" || repo.canWrite;
   card.append(h("div", { class: "nf" }, h("span", { class: "mini", style: "margin-right:auto" }, ""),
     canEdit && h("button", { type: "button", class: "btn sm ghost", onclick: () => { fc.editing = it.id; renderFactory(); } }, "改稿"),
-    canEdit && h("button", { type: "button", class: "btn sm " + (it.status === "已审校" ? "ghost" : ""), onclick: async () => { it.status = it.status === "已审校" ? "待审校" : "已审校"; await persistBatch(); renderFactory(); } }, it.status === "已审校" ? "退回待审校" : "标为已审校"),
+    canEdit && h("button", { type: "button", class: "btn sm " + (it.status === "已审校" ? "ghost" : ""), onclick: async () => { it.status = it.status === "已审校" ? "待审校" : "已审校"; await persistBatch(); renderFactory(); } }, it.status === "已审校" ? "退回" : "通过"),
     canEdit && h("button", { type: "button", class: "btn sm ghost", onclick: async () => { fc.batch.items = fc.batch.items.filter((x) => x.id !== it.id); await persistBatch(); renderFactory(); } }, "删除")));
   return card;
 }
@@ -59,12 +59,12 @@ async function runFactory() {
   if (!p.platforms.length) { $("#fcHint").className = "hint err"; $("#fcHint").textContent = "请选择至少一个平台。"; return; } if (!p.personas.length) { $("#fcHint").className = "hint err"; $("#fcHint").textContent = "请选择至少一个视角。"; return; }
   const ctl = new AbortController(); fc.ctl = ctl; fc.running = true; fc.editing = null; fc.filter = "all"; segSet($("#fcFilter"), "all"); const t0 = Date.now();
   fc.batch = { id: uid("batch"), createdAt: new Date().toISOString(), type: p.type.id, typeLabel: p.type.label, platform: p.platforms.join(" / "), context: p.context, source: "生成", unsaved: true, items: [] };
-  $("#fcRun").disabled = true; $("#fcStop").hidden = false; $("#fcHint").className = "hint"; $("#fcHint").textContent = "稿件会一条条出现，可随时停止。";
+  $("#fcRun").disabled = true; $("#fcStop").hidden = false; $("#fcHint").className = "hint"; $("#fcHint").textContent = "生成中，可随时停止。";
   const wrap = $("#fcNotes"); const g = genNode(`Content Agent 正在写 ${p.count} 条「${p.type.label}」…`); wrap.replaceChildren(g); renderFcToolbar(); const pill = $("#fcPill"); pill.hidden = false; pill.className = "pill accent live"; pill.textContent = "生成中";
   let pending = "";
   const push = (line) => { const o = safeLine(line); if (!o) return; const it = mkItem(o); fc.batch.items.push(it); wrap.insertBefore(noteCard(it, fc.batch.items.length - 1), g); $("#fcCnt").textContent = `已生成 ${fc.batch.items.length} / ${p.count} 条`; };
   try { const { text } = await ai.text(factoryPrompt(p), { tier: $("#fcFast").checked ? "quick" : "default", signal: ctl.signal, cache: false, onText: ({ delta, text }) => { feed(g, text); const lines = (pending + delta).split("\n"); pending = lines.pop(); lines.forEach(push); } });
-    if (pending.trim()) push(pending); if (!fc.batch.items.length && text) text.split("\n").forEach(push); g.remove(); await persistBatch(); renderFactory(); $("#fcHint").textContent = `完成 ${fc.batch.items.length} 条，用时 ${Math.round((Date.now() - t0) / 1000)} 秒。逐条审校后再交付。`; }
+    if (pending.trim()) push(pending); if (!fc.batch.items.length && text) text.split("\n").forEach(push); g.remove(); await persistBatch(); renderFactory(); $("#fcHint").textContent = `完成 ${fc.batch.items.length} 条。`; }
   catch (e) { if (pending.trim()) push(pending); g.remove(); if (fc.batch.items.length) await persistBatch(); renderFactory(); if (e && e.code !== "cancelled") { $("#fcHint").className = "hint err"; $("#fcHint").textContent = errCopy(e); } else $("#fcHint").textContent = `已停止，保留 ${fc.batch.items.length} 条。`; fatalCode(e); }
   fc.running = false; fc.ctl = null; $("#fcRun").disabled = !ai.ready(); $("#fcStop").hidden = true;
 }
@@ -75,13 +75,13 @@ function initFactory() {
   $("#fcBrand").value = projectContext() || EXAMPLE_FACTORY.context; $("#fcMust").value = obj(DB.project).keyMessages || "0 糖 0 卡、5% 真实柚子汁、便利店 6 元、清醒地微醺";
   $$("#fcCount button").forEach((b) => b.addEventListener("click", () => { fc.count = Number(b.dataset.v); $$("#fcCount button").forEach((x) => x.classList.toggle("on", x === b)); }));
   segInit($("#fcFilter"), (v) => { fc.filter = v; renderFactory(); });
-  TOOL_RENDER.factory = () => { if (!fc.running && (!fc.batch || !fc.batch.unsaved)) { fc.batch = DB.batches[0] ? JSON.parse(JSON.stringify(DB.batches[0])) : null; } renderFactory(); };
+  TOOL_RENDER.factory = () => { $("#fcCtxLine").textContent = obj(DB.project).brand ? "背景：当前项目「" + DB.project.brand + "」，可在「更多选项」里改" : "背景：在「更多选项」里填"; if (!fc.running && (!fc.batch || !fc.batch.unsaved)) { fc.batch = DB.batches[0] ? JSON.parse(JSON.stringify(DB.batches[0])) : null; } renderFactory(); };
   $("#fcBatchSel").addEventListener("change", (e) => { const b = DB.batches.find((x) => x.id === e.target.value); if (b) { fc.batch = JSON.parse(JSON.stringify(b)); fc.editing = null; renderFactory(); } });
   $("#syncFactory").addEventListener("click", () => { $("#fcBrand").value = projectContext() || $("#fcBrand").value; toast("已同步当前项目"); });
   $("#factoryForm").addEventListener("submit", (ev) => { ev.preventDefault(); runFactory(); });
   $("#fcStop").addEventListener("click", () => { if (fc.ctl) fc.ctl.abort(); });
   $("#fcSave").addEventListener("click", async () => { if (!requireWrite()) return; await persistBatch(); toast("批次已保存"); });
-  $("#fcReviewAll").addEventListener("click", async () => { if (!fc.batch || !fc.batch.items.length) return toast("还没有稿件"); if (!(repo.mode === "local" || requireWrite())) return; const withFlags = fc.batch.items.filter((x) => x.flags && x.flags.some((f) => f.level === "bad")).length; fc.batch.items.forEach((x) => { if (!(x.flags || []).some((f) => f.level === "bad")) x.status = "已审校"; }); await persistBatch(); renderFactory(); toast(withFlags ? `已标记，${withFlags} 条含广告法禁用词保留待审校` : "已全部标为已审校"); });
+  $("#fcReviewAll").addEventListener("click", async () => { if (!fc.batch || !fc.batch.items.length) return toast("还没有稿件"); if (!(repo.mode === "local" || requireWrite())) return; const withFlags = fc.batch.items.filter((x) => x.flags && x.flags.some((f) => f.level === "bad")).length; fc.batch.items.forEach((x) => { if (!(x.flags || []).some((f) => f.level === "bad")) x.status = "已审校"; }); await persistBatch(); renderFactory(); toast(withFlags ? `已通过，${withFlags} 条含禁用词保留` : "已全部通过"); });
   $("#fcCopyAll").addEventListener("click", () => { const items = (fc.batch ? fc.batch.items : []).filter((x) => x.status === "已审校"); if (!items.length) return toast("还没有已审校的稿件"); copyText(items.map((it, i) => `${i + 1}. 【${it.persona}】${it.title}\n${it.body}\n${arr(it.tags).map((t) => "#" + t).join(" ")}`).join("\n\n"), `已复制 ${items.length} 条已审校稿件`); });
   $("#fcCsv").addEventListener("click", () => { if (!fc.batch || !fc.batch.items.length) return toast("还没有稿件"); downloadFile(`${fc.batch.typeLabel}-${fc.batch.items.length}条.csv`, batchCsv(fc.batch)); });
 }

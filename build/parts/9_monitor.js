@@ -28,10 +28,10 @@ function renderRules() { const canEdit = repo.mode === "local" || repo.canWrite;
   const sc = $("#ruScope"); const cur = sc.value; sc.replaceChildren(h("option", { value: "all" }, "整体与各平台"), ...platformsOf(DB.metrics).map((p) => h("option", { value: p }, p))); sc.value = cur || "all"; }
 function renderBriefs() { const list = DB.briefs; const sel = $("#moBriefSel"); sel.replaceChildren(...list.map((b) => h("option", { value: b.id }, `${b.date} · ${b.source === "ai" ? "AI" : "模板"}${b.pushed ? " · 已推送" : ""}`))); if (!list.length) sel.append(h("option", { value: "" }, "暂无日报"));
   const b = list.find((x) => x.id === mo.briefId) || list[0]; if (b) sel.value = b.id; $("#moBriefMeta").textContent = b ? `${b.source === "ai" ? "AI 生成" : "模板生成"} · ${new Date(b.createdAt).toLocaleString("zh-CN", { hour12: false })}${b.alertCount ? ` · ${b.alertCount} 条告警` : ""}${b.pushResult ? (b.pushResult.ok ? " · 推送成功" : " · 推送失败") : ""}` : "";
-  $("#moBrief").replaceChildren(b ? renderMd(b.text) : emptyNode("还没有日报", "点击右上角「运行监测并生成日报」")); }
+  $("#moBrief").replaceChildren(b ? renderMd(b.text) : emptyNode("还没有日报", "点「运行监测」")); }
 function renderWebhook() { const s = DB.settings || {}; const w = obj(s.webhook); segSet($("#whType"), w.type || "feishu"); $("#whUrl").value = w.url || ""; $("#whSecret").value = w.secret || ""; const hr = $("#whHour"); if (!hr.children.length) for (let i = 0; i < 24; i++) hr.append(h("option", { value: i }, String(i).padStart(2, "0") + ":00")); hr.value = s.dailyHour == null ? 9 : s.dailyHour; $("#whAuto").checked = !!s.autoRun; $("#whAutoPush").checked = !!s.autoPush;
   const wd = $("#whDetails"); if (wd && w.url) wd.open = true;
-  const srv = repo.mode === "server"; ["#whUrl", "#whSecret", "#whHour", "#whAuto", "#whAutoPush", "#whSave", "#whTest", "#moPush"].forEach((id) => { $(id).disabled = !srv || !repo.canWrite; }); $("#whHint").textContent = !srv ? "推送与定时任务需要部署后端（见部署指南）。" : !repo.canWrite ? "登录后可修改推送设置。" : ""; }
+  const srv = repo.mode === "server"; ["#whUrl", "#whSecret", "#whHour", "#whAuto", "#whAutoPush", "#whSave", "#whTest", "#moPush"].forEach((id) => { $(id).disabled = !srv || !repo.canWrite; }); $("#whHint").textContent = !srv ? "需要部署后端。" : !repo.canWrite ? "登录后可修改。" : ""; }
 async function runMonitorUi() {
   if (!DB.metrics.length) return toast("还没有投放数据");
   const btn = $("#moRun"); btn.disabled = true; btn.textContent = "运行中…";
@@ -44,7 +44,7 @@ async function runMonitorUi() {
       const ids = new Set(DB.alerts.map((a) => a.id)); for (const a of ev.alerts) if (!ids.has(a.id)) DB.alerts.unshift(a); DB.alerts = DB.alerts.slice(0, 500); DB.briefs.unshift({ id: uid("b"), date: d, text, source, createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }); DB.briefs = DB.briefs.slice(0, 120); await save("alerts"); await save("briefs"); }
     mo.briefId = null; renderMonitor(); toast("监测完成" + (DB.alerts.filter((a) => !a.acknowledged).length ? "，有未处理告警" : ""));
   } catch (e) { if (!e.silent) toast(e.message || "运行失败"); }
-  btn.disabled = false; btn.textContent = "运行监测并生成日报";
+  btn.disabled = false; btn.textContent = "运行监测";
 }
 function initMonitor() {
   segInit($("#moRange"), (v) => { mo.range = Number(v); renderMonitor(); });

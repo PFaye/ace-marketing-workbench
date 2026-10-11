@@ -86,7 +86,7 @@ function failStage(id, e) { const n = h("div", { class: "empty" }, h("b", null, 
 async function runPipeline(brief) {
   if (!ai.ready()) return; const ctl = new AbortController(); P.ctl = ctl; P.running = true; P.mode = "live"; P.pinned = false; const t0 = Date.now();
   const key = JSON.stringify(brief); const opts = { modelTier: $("#fastMode").checked ? "quick" : "default", signal: ctl.signal, cache: key !== P.lastKey }; P.lastKey = key; P.brief = brief; P.results = {};
-  $("#demoBanner").hidden = true; $("#runBtn").disabled = true; $("#stopBtn").hidden = false; $("#runHint").className = "hint"; $("#runHint").textContent = opts.modelTier === "quick" ? "极速模式：预计 20-40 秒。" : "深度模式：每个环节 AI 会先思考再输出，整体约 1-3 分钟，可随时停止。";
+  $("#demoBanner").hidden = true; $("#runBtn").disabled = true; $("#stopBtn").hidden = false; $("#runHint").className = "hint"; $("#runHint").textContent = opts.modelTier === "quick" ? "约 30 秒。" : "约 1-3 分钟，可随时停止。";
   for (const s of STAGES) setStage(s.id, "wait", "排队中", emptyNode("等待上游智能体完成…")); showStage("insight"); $("#planMeta").textContent = "";
   let fatal = null;
   try { const up = {}; up.insight = await runStage("insight", PROMPTS.insight(brief), opts); up.strategy = await runStage("strategy", PROMPTS.strategy(brief, up), opts);
@@ -95,7 +95,7 @@ async function runPipeline(brief) {
   catch (e) { fatal = e; const fid = !P.results.insight ? "insight" : "strategy"; failStage(fid, e); for (const s of STAGES) if (!P.results[s.id] && s.id !== fid) setStage(s.id, "idle", "未运行", emptyNode("上游环节未完成，本环节未运行")); fatalCode(e); }
   P.running = false; P.ctl = null; $("#runBtn").disabled = !ai.ready(); $("#stopBtn").hidden = true;
   const secs = Math.round((Date.now() - t0) / 1000), done = STAGES.filter((s) => P.results[s.id]).length;
-  if (done || !fatal) { P.meta = `实时生成 · ${opts.modelTier === "quick" ? "极速" : "深度"}模式 · ${done}/5 环节 · 用时 ${secs} 秒`; $("#planMeta").textContent = P.meta; $("#runHint").textContent = done === 5 ? `全案生成完成，用时 ${secs} 秒。已保存为当前项目。` : `完成 ${done}/5 个环节，失败的环节可重新点击「生成全案」。`; }
+  if (done || !fatal) { P.meta = `实时生成 · ${opts.modelTier === "quick" ? "极速" : "深度"}模式 · ${done}/5 环节 · 用时 ${secs} 秒`; $("#planMeta").textContent = P.meta; $("#runHint").textContent = done === 5 ? `完成，用时 ${secs} 秒。` : `完成 ${done}/5，可重新生成。`; }
   else { $("#runHint").className = "hint err"; $("#runHint").textContent = errCopy(fatal); }
   if (done) { DB.plan = { brief, results: P.results, mode: "live", meta: P.meta, at: new Date().toISOString() }; const old = obj(DB.project); const same = old.brand === brief.brand; const bi = obj(obj(P.results.strategy).big_idea); DB.project = { ...brief, slogan: str(bi.slogan) || (same ? old.slogan || "" : ""), keyMessages: same ? old.keyMessages || "" : "", clientPlan: same ? old.clientPlan || "" : "" }; renderProject(); if (repo.canWrite) { await save("plan"); await save("project"); } else if (repo.mode === "local") { await save("plan"); await save("project"); } }
 }
@@ -112,18 +112,18 @@ function buildMd() {
 function renderProject() { const pj = obj(DB.project); $("#pjSlogan").value = pj.slogan || ""; $("#pjTone").value = pj.tone || ""; $("#pjKey").value = pj.keyMessages || ""; $("#pjClient").value = pj.clientPlan || "";
   $("#pjSummary").textContent = pj.brand ? `${pj.brand}${pj.slogan ? " · 「" + pj.slogan + "」" : ""}${pj.keyMessages ? " · " + pj.keyMessages.slice(0, 40) : ""}${pj.clientPlan ? " · 含客户确认版" : ""}` : "还没有项目"; }
 async function saveProject() { if (!(repo.mode === "local" || requireWrite())) return; DB.project = { ...obj(DB.project), ...(obj(DB.project).brand ? {} : readForm()), slogan: $("#pjSlogan").value.trim(), tone: $("#pjTone").value.trim(), keyMessages: $("#pjKey").value.trim(), clientPlan: $("#pjClient").value.trim() };
-  if (await save("project")) { renderProject(); $("#pjHint").textContent = "已保存，内容工厂、达人 Brief、评论洞察、日报将使用这个版本。"; const ctx = projectContext(); $("#fcBrand").value = ctx; $("#fcMust").value = DB.project.keyMessages || $("#fcMust").value; $("#ksBrand").value = ctx; $("#inContext").value = ctx; toast("项目设定已保存"); } }
+  if (await save("project")) { renderProject(); $("#pjHint").textContent = "已保存。"; const ctx = projectContext(); $("#fcBrand").value = ctx; $("#fcMust").value = DB.project.keyMessages || $("#fcMust").value; $("#ksBrand").value = ctx; $("#inContext").value = ctx; toast("项目设定已保存"); } }
 function initPlan() {
   $("#pjSave").addEventListener("click", saveProject);
-  $("#pjFromAi").addEventListener("click", () => { const bi = obj(obj(obj(DB.plan).results).strategy).big_idea; if (bi.slogan) { $("#pjSlogan").value = str(bi.slogan); $("#pjHint").textContent = "已填入 AI 全案的主张，点「保存设定」生效。"; } else $("#pjHint").textContent = "当前没有 AI 全案可用。"; });
+  $("#pjFromAi").addEventListener("click", () => { const bi = obj(obj(obj(DB.plan).results).strategy).big_idea; if (bi.slogan) { $("#pjSlogan").value = str(bi.slogan); $("#pjHint").textContent = "已填入，点「保存」生效。"; } else $("#pjHint").textContent = "当前没有 AI 全案可用。"; });
   renderPlanChips = chipGroup($("#platformChips"), PLATFORMS, planPlatforms);
   $("#sampleChips").replaceChildren(...SAMPLE_BRIEFS.map((b) => h("button", { type: "button", class: "chip dash", onclick: () => { fillForm(b); $("#fQuick").value = briefToQuick(b); lastQuickParsed = $("#fQuick").value; toast("已载入示例 Brief：" + b.brand); } }, b.label)));
   TOOL_RENDER.plan = () => { renderProject(); const pl = obj(DB.plan); if (pl.results && Object.values(pl.results).some(Boolean)) { P.brief = pl.brief || DB.project; P.results = pl.results; P.mode = pl.mode || "live"; P.lastKey = JSON.stringify(P.brief); fillForm(P.brief); if (!$("#fQuick").value) { $("#fQuick").value = briefToQuick(P.brief); lastQuickParsed = $("#fQuick").value; } renderPlanAll(P.results, P.mode === "demo" ? "demo" : "done", P.mode === "demo" ? "示例" : "已生成"); $("#planMeta").textContent = pl.meta || (pl.at ? "生成于 " + new Date(pl.at).toLocaleString("zh-CN", { hour12: false }) : "");
-      if (P.mode === "demo") { $("#demoBannerText").textContent = "基于示例 Brief「泡研社」预生成。接入 AI 后点击「生成全案」，即可针对你的 Brief 实时生成。"; $("#demoBanner").hidden = false; } else $("#demoBanner").hidden = true; }
+      if (P.mode === "demo") { $("#demoBannerText").textContent = "粘入你的 Brief，点「生成方案」。"; $("#demoBanner").hidden = false; } else $("#demoBanner").hidden = true; }
     else { fillForm(DB.project || SAMPLE_BRIEFS[0]); renderPlanAll({}, "idle", "未生成"); } };
   $("#briefForm").addEventListener("submit", async (ev) => { ev.preventDefault(); if (!ai.ready()) { refreshAvailability(); return; }
     const quick = $("#fQuick").value.trim(); if (quick && quick !== lastQuickParsed) { $("#runBtn").disabled = true; try { await parseQuick(); } catch (e) { $("#runHint").className = "hint err"; $("#runHint").textContent = "整理 Brief 失败：" + errCopy(e) + " 可展开「详细填写」手动填。"; $("#runBtn").disabled = !ai.ready(); return; } $("#runBtn").disabled = !ai.ready(); }
-    const brief = readForm(); if (!brief.brand || !brief.product) { $("#runHint").className = "hint err"; $("#runHint").textContent = "请粘贴一段 Brief，或展开「详细填写」填品牌和产品。"; $("#briefDetails").open = true; return; } if (!brief.platforms.length) { $("#runHint").className = "hint err"; $("#runHint").textContent = "请至少选择一个重点平台。"; $("#briefDetails").open = true; return; } runPipeline(brief); });
+    const brief = readForm(); if (!brief.brand || !brief.product) { $("#runHint").className = "hint err"; $("#runHint").textContent = "先粘一段 Brief。"; $("#briefDetails").open = true; return; } if (!brief.platforms.length) { $("#runHint").className = "hint err"; $("#runHint").textContent = "请至少选择一个重点平台。"; $("#briefDetails").open = true; return; } runPipeline(brief); });
   $("#fQuick").addEventListener("input", () => { if ($("#fQuick").value.trim() !== lastQuickParsed) lastQuickParsed = ""; });
   $("#stopBtn").addEventListener("click", () => { if (P.ctl) P.ctl.abort(); });
   $("#copyMdBtn").addEventListener("click", () => copyText(buildMd(), "全案 Markdown 已复制"));
