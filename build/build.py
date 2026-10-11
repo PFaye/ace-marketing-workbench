@@ -4,7 +4,7 @@
 import os, re, json, shutil, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PARTS = ["1_head.html", "2_body.html", "3_data.js", "4_core.js", "4b_lib.js", "5_plan.js", "6_factory.js", "7_kol.js", "8_import.js", "9_monitor.js", "10_insights.js", "11_settings_init.js", "12_onboarding.js"]
+PARTS = ["1_head.html", "2_body.html", "3_data.js", "4_core.js", "4b_lib.js", "5_plan.js", "6_factory.js", "7_kol.js", "8_import.js", "9_monitor.js", "10_insights.js", "10b_start.js", "11_settings_init.js", "12_onboarding.js"]
 
 def read(p):
     with open(os.path.join(ROOT, "build", "parts", p), encoding="utf-8") as f:

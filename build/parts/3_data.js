@@ -269,7 +269,7 @@ function seedMetricsTemplate() {
     if (off === 0 && p.platform === "程序化广告") ctr = 0.9;
     if (off === 0 && p.platform === "抖音") negatives = 24;
     const clicks = Math.round(impressions * ctr / 100), conversions = Math.round(clicks * p.cvr * n() / 100), engagements = Math.round(impressions * p.er * n() / 100);
-    rows.push({ dayOffset: off, platform: p.platform, campaign: p.campaign, spend, impressions, clicks, conversions, engagements, negatives });
+    rows.push({ dayOffset: off, platform: p.platform, campaign: p.campaign, spend, impressions, clicks, conversions, engagements, negatives, source: "示例" });
   }
   return rows;
 }

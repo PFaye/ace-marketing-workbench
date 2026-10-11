@@ -466,6 +466,12 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tour .tcard.center { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px)); }
 .tour .tbar { height: 3px; border-radius: 2px; background: var(--surface-2); overflow: hidden; } .tour .tbar i { display: block; height: 100%; background: var(--accent); transition: width .25s ease; }
 .tour .spot[hidden] { display: none !important; }
+.chk { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.chk i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; font-size: 13px; color: var(--ok); }
+.chk.done i { border-color: var(--ok); background: var(--ok-soft); }
+.chk .t { font-size: 14px; font-weight: 600; } .chk .s { font-size: 12.5px; color: var(--muted); }
+.chk.done .t { color: var(--muted); text-decoration: line-through; }
+@media (max-width: 520px) { .chk { grid-template-columns: 28px minmax(0, 1fr); } .chk .btn { grid-column: 2; justify-self: start; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -473,8 +479,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   <aside class="side">
     <div class="brand"><div class="logo">ACE</div><div><b>ACE 营销工作台</b><small>AI 驱动的营销执行工具</small></div></div>
     <nav class="nav" id="nav">
+      <button type="button" data-tool="start" class="on"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8"/><path d="M6 10v10h12V10"/></svg><span>开始<span class="d">把业务搬进来</span></span></button>
       <div class="grp">策划与内容</div>
-      <button type="button" data-tool="plan" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>全案策划<span class="d">粘 Brief 出方案</span></span></button>
+      <button type="button" data-tool="plan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>全案策划<span class="d">粘 Brief 出方案</span></span></button>
       <button type="button" data-tool="factory"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/></svg><span>内容工厂<span class="d">批量出稿</span></span></button>
       <button type="button" data-tool="insights"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12.5h5"/></svg><span>评论洞察<span class="d">看用户怎么说</span></span></button>
       <div class="grp">达人与投放</div>
@@ -498,8 +505,34 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
   <main class="main">
 
+    <!-- ========== 开始 ========== -->
+    <section class="tool" id="tool-start">
+      <div class="tool-head"><div><h2>开始</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
+      <div class="stack">
+        <div class="notice" id="startAi"><div id="startAiText"></div></div>
+        <div class="card"><div class="card-head"><h3>三步搬进来</h3><span class="sub">做完一步自动打勾</span></div><div class="card-body tight" id="startSteps"></div></div>
+        <div class="row-cards">
+          <div class="card"><div class="card-head"><h3>平台表格怎么导出</h3></div><div class="card-body tight">
+            <div class="welcome-steps">
+              <div class="r"><b>蒲</b><span><b>蒲公英 / 星图 / 千瓜</b>：在达人列表页点「导出」，得到 Excel，直接拖进「数据接入」。</span></div>
+              <div class="r"><b>投</b><span><b>投放后台</b>（巨量、聚光、腾讯广告）：报表页选日期 → 「下载报表」，拖进「数据接入」选「投放日报」。</span></div>
+              <div class="r"><b>表</b><span><b>自己的 Excel</b>：表头有「名称、平台、粉丝、互动、报价」或「日期、渠道、消耗、曝光、点击、转化」就能认。</span></div>
+            </div></div></div>
+          <div class="card"><div class="card-head"><h3>常见问题</h3></div><div class="card-body tight">
+            <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
+              <li><b>要配置 AI 吗？</b>不用，管理员已接入，所有生成按钮直接点。</li>
+              <li><b>改方案要重传吗？</b>不用，改「全案策划 → 项目设定」。</li>
+              <li><b>示例数据怎么清掉？</b>登录后点下面的按钮，一次清空。</li>
+              <li><b>换客户？</b>粘新 Brief 生成即可。</li>
+            </ul>
+            <div class="toolbar"><button type="button" class="btn sm ghost" id="startClear">清空示例数据</button><span class="hint" id="startClearHint"></span></div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== 全案策划 ========== -->
-    <section class="tool" id="tool-plan">
+    <section class="tool" id="tool-plan" hidden>
       <div class="tool-head">
         <div><h2>全案策划</h2><p>粘一段 Brief，AI 出完整方案。</p></div>
         <div class="acts"><button type="button" class="btn sm" id="copyMdBtn">复制方案</button><button type="button" class="btn sm" id="dlMdBtn" hidden>下载 .md</button></div>
@@ -1108,7 +1141,7 @@ function seedMetricsTemplate() {
     if (off === 0 && p.platform === "程序化广告") ctr = 0.9;
     if (off === 0 && p.platform === "抖音") negatives = 24;
     const clicks = Math.round(impressions * ctr / 100), conversions = Math.round(clicks * p.cvr * n() / 100), engagements = Math.round(impressions * p.er * n() / 100);
-    rows.push({ dayOffset: off, platform: p.platform, campaign: p.campaign, spend, impressions, clicks, conversions, engagements, negatives });
+    rows.push({ dayOffset: off, platform: p.platform, campaign: p.campaign, spend, impressions, clicks, conversions, engagements, negatives, source: "示例" });
   }
   return rows;
 }
@@ -1361,10 +1394,10 @@ function initApiModal() {
 }
 
 // ===================== 导航 =====================
-const TOOLS = ["plan", "factory", "insights", "kol", "monitor", "import", "settings"];
+const TOOLS = ["start", "plan", "factory", "insights", "kol", "monitor", "import", "settings"];
 const TOOL_RENDER = {};
 function showTool(id) {
-  if (!TOOLS.includes(id)) id = "plan";
+  if (!TOOLS.includes(id)) id = "start";
   TOOLS.forEach((t) => { $("#tool-" + t).hidden = t !== id; });
   $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.tool === id));
   try { history.replaceState(null, "", "#" + id); } catch (e) {}
@@ -1844,7 +1877,7 @@ function renderPreview() { const rows = mapRows(im.rows.slice(0, 5), im.target, 
   const t = $("#imPreview"); t.replaceChildren(h("thead", null, h("tr", null, cols.map((c) => h("th", null, FIELD_LABELS[c] || c)))), h("tbody", null, rows.length ? rows.map((r) => h("tr", null, cols.map((c) => h("td", { class: typeof r[c] === "number" ? "num" : "" }, r[c] == null || r[c] === "" ? h("span", { class: "mini" }, "-") : typeof r[c] === "number" ? fmtN(r[c]) : str(r[c]))))) : [h("tr", null, h("td", { colspan: cols.length }, "映射后没有有效行，请检查必填字段"))])); }
 async function commitImport() {
   if (!(repo.mode === "local" || requireWrite())) return; const rows = mapRows(im.rows, im.target, im.mapping); if (!rows.length) return toast("没有可导入的有效行");
-  if (im.target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(DB.metrics.map((r) => [key(r), r])); for (const r of rows) map.set(key(r), r); DB.metrics = [...map.values()].sort((a, b) => (a.date < b.date ? -1 : 1)); if (await save("metrics")) toast(`已导入 ${rows.length} 行投放数据`); }
+  if (im.target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(DB.metrics.map((r) => [key(r), r])); for (const r of rows) map.set(key(r), { ...r, source: im.source }); DB.metrics = [...map.values()].sort((a, b) => (a.date < b.date ? -1 : 1)); if (await save("metrics")) toast(`已导入 ${rows.length} 行投放数据`); }
   else { const key = (r) => `${r.name}|${r.platform}`; const map = new Map(DB.kols.map((r) => [key(r), r])); let added = 0; for (const r of rows) { const o = map.get(key(r)); if (!o) added++; map.set(key(r), { ...(o || { id: uid("k"), status: "待评估", selected: false }), ...r, source: im.source }); } DB.kols = [...map.values()]; if (await save("kols")) toast(`已导入 ${rows.length} 位达人（新增 ${added}）`); }
   im.rows = []; im.headers = []; $("#imMapCard").hidden = true; $("#imPaste").value = ""; renderImportStats(); renderConnectors();
 }
@@ -1991,6 +2024,38 @@ function initInsights() {
 }
 </script>
 <script>
+// ===================== 开始页：AI 状态 + 三步搬进来清单 + 清空示例 =====================
+const DEMO_BRAND = "泡研社";
+function startChecks() { const pj = obj(DB.project), pl = obj(DB.plan);
+  return [
+    { done: (pl.mode && pl.mode !== "demo") || (pj.brand && pj.brand !== DEMO_BRAND), t: "粘一段你的 Brief，生成方案", s: "全案策划 → 粘贴 → 生成。客户有意见改「项目设定」。", tool: "plan" },
+    { done: DB.kols.some((x) => x.source && x.source !== "示例数据"), t: "导入你的达人名单", s: "蒲公英 / 星图导出表拖进「数据接入」→ 导入 → 达人匹配一键选人。", tool: "import" },
+    { done: DB.metrics.some((r) => r.source && r.source !== "示例"), t: "导入你的投放日报", s: "后台下载的日报表拖进「数据接入」选「投放日报」→ 投放监测自动告警。", tool: "import" },
+    { done: !!obj(obj(DB.settings).webhook).url, t: "填群机器人，日报自动推", s: "投放监测 → 推送设置 → 粘飞书 / 企微 Webhook → 勾自动 → 保存。", tool: "monitor" }
+  ]; }
+function renderStart() {
+  const ready = ai.ready(); const t = $("#startAiText"); const n = $("#startAi"); n.className = "notice" + (ready ? "" : " warn");
+  t.textContent = ""; t.append(h("b", null, ready ? "AI 已接入，直接用。" : "AI 还没接入。"), " ", ready ? (repo.mode === "server" ? `模型 ${ai.label.replace(/^服务端 · /, "")} 已由管理员配置，所有生成按钮可直接点，访客也能试用。` : `当前用 ${ai.label}。`) : (repo.mode === "server" ? (repo.canWrite ? "到「设置」填一个模型 Key 即可。" : "请管理员在「设置」填模型 Key。") : "到「设置」接入模型。"));
+  const checks = startChecks(); const done = checks.filter((x) => x.done).length;
+  $("#startIntro").textContent = done === checks.length ? "全部就绪，日常只需每天拖一份日报表。" : `三步把你的业务搬进来，已完成 ${done} / ${checks.length}。`;
+  $("#startSteps").replaceChildren(...checks.map((x, i) => h("div", { class: "chk" + (x.done ? " done" : "") }, h("i", null, x.done ? "✓" : String(i + 1)), h("div", null, h("div", { class: "t" }, x.t), h("div", { class: "s" }, x.s)), h("button", { type: "button", class: "btn sm" + (x.done ? " ghost" : " primary"), onclick: () => showTool(x.tool) }, x.done ? "再看看" : "去做"))));
+  const canClear = repo.mode === "local" || repo.canWrite; const hasDemo = DB.kols.some((x) => x.source === "示例数据") || DB.metrics.some((r) => r.source === "示例") || DB.batches.some((x) => x.source === "示例") || obj(DB.plan).mode === "demo";
+  $("#startClear").hidden = !hasDemo; $("#startClear").disabled = !canClear; $("#startClearHint").textContent = !hasDemo ? "示例数据已清空。" : canClear ? "" : "登录后可清空。";
+}
+let clearArmed = false;
+async function clearDemoData() {
+  if (!(repo.mode === "local" || requireWrite())) return;
+  if (!clearArmed) { clearArmed = true; $("#startClear").textContent = "再点一次确认清空"; setTimeout(() => { clearArmed = false; $("#startClear").textContent = "清空示例数据"; }, 4000); return; }
+  clearArmed = false; $("#startClear").textContent = "清空示例数据";
+  DB.kols = DB.kols.filter((x) => x.source !== "示例数据"); DB.metrics = DB.metrics.filter((r) => r.source !== "示例"); DB.batches = DB.batches.filter((x) => x.source !== "示例"); DB.insights = DB.insights.filter((x) => x.source !== "示例");
+  if (obj(DB.plan).mode === "demo") { DB.plan = null; if (obj(DB.project).brand === DEMO_BRAND) DB.project = null; }
+  DB.alerts = []; DB.briefs = []; fc.batch = null; ins.current = null;
+  for (const c of ["kols", "metrics", "batches", "insights", "plan", "project", "alerts", "briefs"]) await save(c);
+  renderAll(); toast("示例数据已清空");
+}
+function initStart() { TOOL_RENDER.start = renderStart; $("#startDemo").addEventListener("click", () => showTool("plan")); $("#startClear").addEventListener("click", clearDemoData); }
+</script>
+<script>
 // ===================== 设置 =====================
 const APP_VERSION = "3.1";
 function kv(pairs) { return pairs.flatMap(([k, v]) => [h("dt", null, k), h("dd", null, v)]); }
@@ -2019,7 +2084,7 @@ function initSettings() {
 
 // ===================== 启动 =====================
 async function boot() {
-  initPlan(); initFactory(); initInsights(); initKol(); initMonitor(); initImport(); initSettings(); initAuth(); initApiModal();
+  initPlan(); initFactory(); initInsights(); initKol(); initMonitor(); initImport(); initSettings(); initStart(); initAuth(); initApiModal();
   $$("#nav button").forEach((b) => b.addEventListener("click", () => showTool(b.dataset.tool)));
   const about = $("#aboutModal"); $("#aboutBtn").addEventListener("click", () => { about.hidden = false; $("#aboutClose").focus(); }); $("#aboutClose").addEventListener("click", () => { about.hidden = true; }); about.addEventListener("click", (e) => { if (e.target === about) about.hidden = true; });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") $$(".modal").forEach((m) => { m.hidden = true; }); });
@@ -2027,7 +2092,7 @@ async function boot() {
   if (IN_ARTIFACT) { ai.mode = "artifact"; ai.label = "Claude"; useCap("sample").then((s) => { state.sample = s || null; if (!s) ai.mode = "none"; refreshAvailability(); renderSettings(); }); useCap("downloads").then((d) => { state.downloads = d || null; $("#dlMdBtn").hidden = !d; }); }
   else { decideAiMode(); $("#dlMdBtn").hidden = false; }
   refreshAuthUi(); refreshAvailability(); renderAll();
-  const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "plan");
+  const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "start");
   initOnboarding(); onboardingStart();
 }
 boot();

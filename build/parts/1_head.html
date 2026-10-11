@@ -466,5 +466,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tour .tcard.center { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px)); }
 .tour .tbar { height: 3px; border-radius: 2px; background: var(--surface-2); overflow: hidden; } .tour .tbar i { display: block; height: 100%; background: var(--accent); transition: width .25s ease; }
 .tour .spot[hidden] { display: none !important; }
+.chk { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.chk i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; font-size: 13px; color: var(--ok); }
+.chk.done i { border-color: var(--ok); background: var(--ok-soft); }
+.chk .t { font-size: 14px; font-weight: 600; } .chk .s { font-size: 12.5px; color: var(--muted); }
+.chk.done .t { color: var(--muted); text-decoration: line-through; }
+@media (max-width: 520px) { .chk { grid-template-columns: 28px minmax(0, 1fr); } .chk .btn { grid-column: 2; justify-self: start; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>

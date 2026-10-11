@@ -225,10 +225,10 @@ function initApiModal() {
 }
 
 // ===================== 导航 =====================
-const TOOLS = ["plan", "factory", "insights", "kol", "monitor", "import", "settings"];
+const TOOLS = ["start", "plan", "factory", "insights", "kol", "monitor", "import", "settings"];
 const TOOL_RENDER = {};
 function showTool(id) {
-  if (!TOOLS.includes(id)) id = "plan";
+  if (!TOOLS.includes(id)) id = "start";
   TOOLS.forEach((t) => { $("#tool-" + t).hidden = t !== id; });
   $$("#nav button").forEach((b) => b.classList.toggle("on", b.dataset.tool === id));
   try { history.replaceState(null, "", "#" + id); } catch (e) {}

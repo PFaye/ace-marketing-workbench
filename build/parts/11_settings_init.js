@@ -27,7 +27,7 @@ function initSettings() {
 
 // ===================== 启动 =====================
 async function boot() {
-  initPlan(); initFactory(); initInsights(); initKol(); initMonitor(); initImport(); initSettings(); initAuth(); initApiModal();
+  initPlan(); initFactory(); initInsights(); initKol(); initMonitor(); initImport(); initSettings(); initStart(); initAuth(); initApiModal();
   $$("#nav button").forEach((b) => b.addEventListener("click", () => showTool(b.dataset.tool)));
   const about = $("#aboutModal"); $("#aboutBtn").addEventListener("click", () => { about.hidden = false; $("#aboutClose").focus(); }); $("#aboutClose").addEventListener("click", () => { about.hidden = true; }); about.addEventListener("click", (e) => { if (e.target === about) about.hidden = true; });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") $$(".modal").forEach((m) => { m.hidden = true; }); });
@@ -35,7 +35,7 @@ async function boot() {
   if (IN_ARTIFACT) { ai.mode = "artifact"; ai.label = "Claude"; useCap("sample").then((s) => { state.sample = s || null; if (!s) ai.mode = "none"; refreshAvailability(); renderSettings(); }); useCap("downloads").then((d) => { state.downloads = d || null; $("#dlMdBtn").hidden = !d; }); }
   else { decideAiMode(); $("#dlMdBtn").hidden = false; }
   refreshAuthUi(); refreshAvailability(); renderAll();
-  const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "plan");
+  const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "start");
   initOnboarding(); onboardingStart();
 }
 boot();

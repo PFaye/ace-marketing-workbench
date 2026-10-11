@@ -175,7 +175,7 @@ async function api(req, res, url) {
     try {
       const { rows, mapping } = await runConnector(conn);
       store.update((d) => {
-        if (conn.target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(d.metrics.map((r) => [key(r), r])); for (const r of rows) map.set(key(r), r); d.metrics = [...map.values()].sort((a, b) => a.date < b.date ? -1 : 1); }
+        if (conn.target === "metrics") { const key = (r) => `${r.date}|${r.platform}|${r.campaign}`; const map = new Map(d.metrics.map((r) => [key(r), r])); for (const r of rows) map.set(key(r), { ...r, source: conn.name }); d.metrics = [...map.values()].sort((a, b) => a.date < b.date ? -1 : 1); }
         else { const key = (r) => `${r.name}|${r.platform}`; const map = new Map(d.kols.map((r) => [key(r), r])); for (const r of rows) { const o = map.get(key(r)); map.set(key(r), { ...(o || { id: "k" + crypto.randomBytes(4).toString("hex"), status: "待评估" }), ...r, source: conn.name }); } d.kols = [...map.values()]; }
         const c = d.connectors.find((x) => x.id === conn.id); if (c) { c.lastRun = new Date().toISOString(); c.lastStatus = `成功导入 ${rows.length} 条`; }
       });
