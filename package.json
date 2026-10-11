@@ -1,0 +1,12 @@
+{
+  "name": "ace-marketing-workbench",
+  "version": "3.0.0",
+  "private": true,
+  "description": "ACE 营销工作台：AI 全案策划、内容工厂、达人匹配、投放监测与群推送",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "python3 build/build.py"
+  },
+  "engines": { "node": ">=18" }
+}

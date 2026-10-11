@@ -1,0 +1,369 @@
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo">ACE</div><div><b>ACE 营销工作台</b><small>AI 驱动的营销执行工具</small></div></div>
+    <nav class="nav" id="nav">
+      <div class="grp">策划与内容</div>
+      <button type="button" data-tool="plan" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>全案策划<span class="d">Brief 到执行指令</span></span></button>
+      <button type="button" data-tool="factory"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/></svg><span>内容工厂<span class="d">批量稿件 · 审校交付</span></span></button>
+      <button type="button" data-tool="insights"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12.5h5"/></svg><span>评论洞察<span class="d">用户声音 · 负面预警</span></span></button>
+      <div class="grp">达人与投放</div>
+      <button type="button" data-tool="kol"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 4l1.2 2.4 2.6.4-1.9 1.8.5 2.6L17 10l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z"/></svg><span>达人匹配<span class="d">达人库 · 组合 · 跟进</span></span></button>
+      <button type="button" data-tool="monitor"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 4-6 5 4"/><path d="M3 21h18"/></svg><span>投放监测<span class="d">日报 · 告警 · 推送</span></span></button>
+      <button type="button" data-tool="import"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><span>数据接入<span class="d">导入表格 · 连接平台</span></span></button>
+      <div class="grp">系统</div>
+      <button type="button" data-tool="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>设置<span class="d">模型 · 项目 · 数据</span></span></button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="side-foot">
+      <span class="status" id="aiStatus"><i></i>检测 AI 可用性…</span>
+      <span class="mode" id="modeText"></span>
+      <button type="button" class="linkbtn accent" id="authBtn" hidden>登录以编辑</button>
+      <button type="button" class="linkbtn" id="apiBtn" hidden>API 设置</button>
+      <button type="button" class="linkbtn accent" id="helpBtn">重看引导</button>
+      <button type="button" class="linkbtn" id="tutBtn">完整流程</button>
+      <button type="button" class="linkbtn" id="aboutBtn">关于本作品</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ========== 全案策划 ========== -->
+    <section class="tool" id="tool-plan">
+      <div class="tool-head">
+        <div><h2>全案策划</h2><p>输入项目 Brief，五个智能体接力：洞察 → 策略 → AIGC 内容 → 媒介投放 → 执行指令。生成结果自动保存为当前项目，供其他工具引用。</p></div>
+        <div class="acts"><button type="button" class="btn sm" id="copyMdBtn">复制全案 Markdown</button><button type="button" class="btn sm" id="dlMdBtn" hidden>下载 .md</button></div>
+      </div>
+      <div class="work">
+        <form class="in" id="briefForm" autocomplete="off">
+          <div class="field"><label for="fQuick">把 Brief 粘进来 <em>随便写，AI 整理成表单</em></label><textarea id="fQuick" style="min-height:104px" placeholder="例：客户是一个无糖气泡水新品牌，下个月上市，预算 300 万，想打 20-30 岁年轻人，主要做小红书和抖音，调性轻松一点…"></textarea></div>
+          <div class="field"><span class="lbl">或载入示例 <em>一键填入</em></span><div class="chips" id="sampleChips"></div></div>
+          <details id="briefDetails"><summary class="hint" style="cursor:pointer">详细填写 / 查看 AI 整理结果</summary><div style="display:grid;gap:12px;margin-top:10px">
+          <div class="row">
+            <div class="field"><label for="fBrand">品牌 / 产品</label><input type="text" id="fBrand" required maxlength="40" placeholder="泡研社"></div>
+            <div class="field"><label for="fIndustry">行业</label><select id="fIndustry"><option>食品饮料</option><option>美妆个护</option><option>3C 数码</option><option>服饰鞋包</option><option>汽车出行</option><option>母婴家庭</option><option>互联网 / APP</option><option>金融保险</option><option>文旅 / 餐饮</option><option>家居家电</option><option>其他</option></select></div>
+          </div>
+          <div class="field"><label for="fProduct">产品与卖点 <em>价格、渠道</em></label><textarea id="fProduct" required maxlength="300" placeholder="这个产品是什么、核心卖点、价格带、在哪买"></textarea></div>
+          <div class="field"><label for="fAudience">目标人群</label><textarea id="fAudience" required maxlength="200" placeholder="年龄、城市、生活状态、他们在意什么" style="min-height:60px"></textarea></div>
+          <div class="row3">
+            <div class="field"><label for="fGoal">目标</label><select id="fGoal"><option>新品上市 / 品牌认知</option><option>销量转化 / 大促冲量</option><option>用户增长 / 拉新</option><option>口碑种草 / 心智占位</option><option>品牌年轻化 / 焕新</option><option>私域沉淀 / 复购</option></select></div>
+            <div class="field"><label for="fBudget">预算</label><select id="fBudget"><option>50 万以下</option><option>50-200 万</option><option selected>200-500 万</option><option>500-1000 万</option><option>1000 万以上</option></select></div>
+            <div class="field"><label for="fPeriod">周期</label><select id="fPeriod"><option>2 周</option><option selected>1 个月</option><option>1 个季度</option><option>半年</option></select></div>
+          </div>
+          <div class="field"><span class="lbl">重点平台 <em>可多选</em></span><div class="chips" id="platformChips"></div></div>
+          <div class="field"><label for="fTone">品牌调性 <em>选填</em></label><input type="text" id="fTone" maxlength="60" placeholder="轻松、有梗、不说教"></div>
+          </div></details>
+          <div class="divider"></div>
+          <label class="switch" for="fastMode"><input type="checkbox" id="fastMode"><span><b>极速模式</b> · 更快，深度略低</span></label>
+          <button type="submit" class="btn primary block" id="runBtn">生成全案</button>
+          <button type="button" class="btn block" id="stopBtn" hidden>停止生成</button>
+          <p class="hint" id="runHint"></p>
+        </form>
+        <div class="out">
+          <div class="notice" id="demoBanner" hidden><div><b>示例方案</b> <span id="demoBannerText"></span></div><button type="button" class="x" id="demoBannerClose" aria-label="关闭">×</button></div>
+          <details class="card" id="projCard"><summary class="card-head" style="cursor:pointer;border-bottom:0;list-style:none"><h3>项目设定</h3><span class="sub" id="pjSummary"></span><span class="pill accent" style="margin-left:auto">下游工具都用这里的版本</span></summary>
+            <div class="card-body tight" style="border-top:1px solid var(--line)">
+              <p class="hint">AI 生成全案后会自动填入。客户改了主张、换了核心信息，或者干脆不用 AI 的方案，就在这里改或把客户确认版粘进来，保存后内容工厂、达人 Brief、评论洞察、日报全部按这里走。不需要上传任何文件。</p>
+              <div class="row"><div class="field"><label for="pjSlogan">传播主张 / Big Idea</label><input type="text" id="pjSlogan" maxlength="40"></div><div class="field"><label for="pjTone">调性</label><input type="text" id="pjTone" maxlength="60"></div></div>
+              <div class="field"><label for="pjKey">核心信息 <em>所有内容必须出现，用顿号分隔</em></label><input type="text" id="pjKey" maxlength="200" placeholder="0 糖 0 卡、5% 真实柚子汁、便利店 6 元、无酒精"></div>
+              <div class="field"><label for="pjClient">客户确认版方案 <em>选填：客户的最终版或修改意见，粘进来即可</em></label><textarea id="pjClient" maxlength="3000" style="min-height:96px" placeholder="例：客户要求主张改为「微醺不用酒精」；小红书只做 KOC 不做头部；避免「加班」场景…"></textarea></div>
+              <div class="toolbar"><button type="button" class="btn sm primary" id="pjSave">保存设定</button><button type="button" class="btn sm ghost" id="pjFromAi">用 AI 全案的主张重置</button><span class="hint" id="pjHint"></span></div>
+            </div></details>
+          <div class="stages" id="stages"></div>
+          <div class="card" id="stageCard"><div class="card-head"><h3 id="stageTitle"></h3><span class="sub" id="stageSub"></span><div class="right"><span class="pill" id="stagePill"></span></div></div><div class="card-body" id="stageBody"></div></div>
+          <p class="hint" id="planMeta"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 内容工厂 ========== -->
+    <section class="tool" id="tool-factory" hidden>
+      <div class="tool-head">
+        <div><h2>内容工厂</h2><p>一次生成几十条互不重复的稿件，逐条审校、改稿、标记，只把审过的交付出去。广告法敏感词会自动标出。</p></div>
+        <div class="acts"><div class="seg" id="fcFilter"><button type="button" data-v="all" class="on">全部</button><button type="button" data-v="pending">待审校</button><button type="button" data-v="reviewed">已审校</button></div></div>
+      </div>
+      <div class="work">
+        <form class="in" id="factoryForm" autocomplete="off">
+          <div class="field"><label for="fcBrand">品牌 / 产品背景 <em><button type="button" class="linkbtn" id="syncFactory">从当前项目同步</button></em></label><textarea id="fcBrand" required maxlength="1500" style="min-height:64px"></textarea></div>
+          <div class="field"><span class="lbl">稿件类型</span><div class="seg block" id="fcType"></div></div>
+          <div class="field"><span class="lbl">数量</span><div class="seg block" id="fcCount"><button type="button" data-v="10">10</button><button type="button" data-v="20" class="on">20</button><button type="button" data-v="30">30</button></div></div>
+          <details id="fcAdv"><summary class="hint" style="cursor:pointer">更多选项：平台、视角、必含信息、禁忌</summary><div style="display:grid;gap:12px;margin-top:10px">
+          <div class="field"><span class="lbl">平台</span><div class="chips" id="fcPlatform"></div></div>
+          <div class="field"><span class="lbl">视角 / 场景 <em>多选，每条随机分配</em></span><div class="chips" id="fcPersona"></div></div>
+          <div class="field"><label for="fcMust">必须包含的信息 <em>卖点、价格、口号</em></label><input type="text" id="fcMust" maxlength="120" placeholder="0 糖 0 卡、5% 真实果汁、便利店 6 元、清醒地微醺"></div>
+          <div class="field"><label for="fcAvoid">禁忌 <em>选填</em></label><input type="text" id="fcAvoid" maxlength="80" placeholder="不提竞品、不说功效"></div>
+          </div></details>
+          <div class="divider"></div>
+          <label class="switch" for="fcFast"><input type="checkbox" id="fcFast"><span><b>极速模式</b> · 更快，文采略低</span></label>
+          <button type="submit" class="btn primary block" id="fcRun">开始批量生成</button>
+          <button type="button" class="btn block" id="fcStop" hidden>停止</button>
+          <p class="hint" id="fcHint"></p>
+        </form>
+        <div class="out">
+          <div class="toolbar">
+            <select id="fcBatchSel" class="btn sm" style="max-width:240px" aria-label="批次"></select>
+            <span class="cnt" id="fcCnt"></span><span class="pill" id="fcPill"></span>
+            <div class="right"><button type="button" class="btn sm" id="fcReviewAll">全部标为已审校</button><button type="button" class="btn sm" id="fcCopyAll">复制已审校</button><button type="button" class="btn sm" id="fcCsv">导出 CSV</button><button type="button" class="btn sm" id="fcSave" hidden>保存批次</button></div>
+          </div>
+          <div class="notes" id="fcNotes"></div>
+          <div class="compliance">稿件为合作达人 / 官方账号的参考稿。发布时标注合作关系与 AI 生成标识，不用于冒充普通用户发布评论（《网络反不正当竞争暂行规定》第九条）。敏感词提示只是提醒，不能替代人工与品牌方审核。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 评论洞察 ========== -->
+    <section class="tool" id="tool-insights" hidden>
+      <div class="tool-head"><div><h2>评论洞察</h2><p>把评论区、客服记录、问卷开放题粘贴进来，AI 归纳主题、情绪与原话，标出需要立刻回应的负面，并给出内容机会。</p></div></div>
+      <div class="work">
+        <form class="in" id="insightForm" autocomplete="off">
+          <div class="field"><label for="inContext">产品背景 <em><button type="button" class="linkbtn" id="syncInsight">从当前项目同步</button></em></label><textarea id="inContext" maxlength="1500" style="min-height:64px"></textarea></div>
+          <div class="field"><label for="inText">用户评论 <em>每行一条，最多 300 条</em></label><textarea id="inText" required style="min-height:220px;font-size:12.5px"></textarea><div class="chips"><button type="button" class="chip dash" id="inSample">填入示例评论</button></div></div>
+          <div class="divider"></div>
+          <button type="submit" class="btn primary block" id="inRun">分析评论</button>
+          <p class="hint" id="inHint"></p>
+        </form>
+        <div class="out" id="inOut"></div>
+      </div>
+    </section>
+
+    <!-- ========== 达人匹配 ========== -->
+    <section class="tool" id="tool-kol" hidden>
+      <div class="tool-head">
+        <div><h2>达人匹配</h2><p>把蒲公英 / 星图导出的名单接进达人库，按公式算性价比、按预算选组合、让 AI 打分，再把合作状态和跟进日管起来。</p></div>
+        <div class="acts"><div class="seg" id="kolMode"><button type="button" data-m="lib" class="on">达人库</button><button type="button" data-m="strategy">选型策略</button></div></div>
+      </div>
+      <div class="work" id="kolLib">
+        <form class="in" id="kolLibForm" autocomplete="off">
+          <div class="row">
+            <div class="field"><label for="klBudget">本轮达人预算（元）</label><input type="text" id="klBudget" value="20000"></div>
+            <div class="field"><label for="klMax">最多人数</label><input type="text" id="klMax" value="5"></div>
+          </div>
+          <button type="button" class="btn primary block" id="klOneClick">一键推荐组合</button>
+          <p class="hint" style="margin-top:-6px">AI 评估当前名单，再按预算自动选人。没有接入 AI 时按匹配分选。</p>
+          <button type="button" class="btn block" id="klBrief">为已选达人生成合作 Brief</button>
+          <details><summary class="hint" style="cursor:pointer">筛选与排序</summary><div style="display:grid;gap:12px;margin-top:10px">
+          <div class="field"><span class="lbl">平台</span><div class="chips" id="klPlatform"></div></div>
+          <div class="field"><label for="klSearch">搜索 <em>名称、品类、城市、画像</em></label><input type="text" id="klSearch" placeholder="职场 / 上海 / 学生"></div>
+          <div class="row">
+            <div class="field"><label for="klMaxQuote">最高报价（元）</label><input type="text" id="klMaxQuote" placeholder="不限"></div>
+            <div class="field"><label for="klMinFit">最低匹配分</label><input type="text" id="klMinFit" placeholder="0"></div>
+          </div>
+          <div class="field"><label for="klSort">排序</label><select id="klSort"><option value="fit">匹配分优先</option><option value="ai">AI 评分优先</option><option value="cpm">CPM 低优先（性价比）</option><option value="er">互动率优先</option><option value="followers">粉丝量优先</option><option value="quote">报价低优先</option></select></div>
+          </div></details>
+          <details><summary class="hint" style="cursor:pointer">分步操作</summary><div style="display:grid;gap:8px;margin-top:10px">
+          <button type="button" class="btn block" id="klAuto">只按当前排序自动选组合</button>
+          <button type="button" class="btn block" id="klAiScore">只做 AI 评估</button>
+          </div></details>
+          <p class="hint" id="klHint"></p>
+        </form>
+        <div class="out">
+          <div class="stats" id="klSummary"></div>
+          <div class="card"><div class="card-head"><h3>达人库</h3><span class="sub" id="klCount"></span><div class="right"><button type="button" class="btn sm" id="klClearSel">清空已选</button><button type="button" class="btn sm" id="klExport">导出 CSV</button><button type="button" class="btn sm" id="klImportGo">导入名单</button></div></div>
+            <div class="card-body" style="padding:0"><div class="tbl-wrap" style="border:0;border-radius:0 0 16px 16px"><table class="tbl" id="klTable"></table></div></div></div>
+          <div id="klBriefOut"></div>
+          <p class="mini">CPM = 报价 ÷ 平均阅读 × 1000；CPE = 报价 ÷ 平均互动；互动率 = 平均互动 ÷ 平均阅读。均基于导入的历史均值，不是本次效果预测。匹配分来自导入表或人工填写，AI 评分由模型综合人群、调性、性价比与风险给出。</p>
+        </div>
+      </div>
+      <div class="work" id="kolStrategy" hidden>
+        <form class="in" id="kolStrategyForm" autocomplete="off">
+          <div class="field"><label for="ksBrand">品牌 / 产品背景 <em><button type="button" class="linkbtn" id="syncKolS">从当前项目同步</button></em></label><textarea id="ksBrand" required maxlength="1500" style="min-height:88px"></textarea></div>
+          <div class="field"><span class="lbl">投放平台</span><div class="chips" id="ksPlatform"></div></div>
+          <div class="row">
+            <div class="field"><label for="ksBudget">达人预算</label><select id="ksBudget"><option>20 万以下</option><option>20-50 万</option><option selected>50-150 万</option><option>150-300 万</option><option>300 万以上</option></select></div>
+            <div class="field"><label for="ksGoal">达人目标</label><select id="ksGoal"><option>新品种草 / 认知</option><option>带货转化</option><option>口碑铺量</option><option>话题破圈</option></select></div>
+          </div>
+          <div class="divider"></div>
+          <button type="submit" class="btn primary block" id="ksRun">生成选型策略</button>
+          <p class="hint" id="ksHint"></p>
+        </form>
+        <div class="out" id="ksOut"></div>
+      </div>
+    </section>
+
+    <!-- ========== 投放监测 ========== -->
+    <section class="tool" id="tool-monitor" hidden>
+      <div class="tool-head">
+        <div><h2>投放监测</h2><p>导入每日投放报表后，这里按规则盯数：CTR 掉了、CPA 超了、负评多了会告警，并把 AI 日报推到飞书或企微群。</p></div>
+        <div class="acts"><div class="seg" id="moRange"><button type="button" data-v="7">7 天</button><button type="button" data-v="14" class="on">14 天</button><button type="button" data-v="30">30 天</button></div><button type="button" class="btn sm primary" id="moRun">运行监测并生成日报</button></div>
+      </div>
+      <div class="stack">
+        <div class="notice" id="moNotice" hidden><div id="moNoticeText"></div></div>
+        <div class="stats" id="moTiles"></div>
+        <div class="charts" id="moCharts"></div>
+        <div class="row-cards">
+          <div class="card"><div class="card-head"><h3>告警</h3><span class="sub" id="moAlertSub"></span><div class="right"><button type="button" class="btn sm ghost" id="moAckAll">全部已读</button></div></div><div class="card-body tight" id="moAlerts"></div></div>
+          <div class="card"><div class="card-head"><h3>告警规则</h3><span class="sub">按最新一天的数据评估</span></div>
+            <div class="card-body tight">
+              <div class="tbl-wrap"><table class="tbl" id="moRules"></table></div>
+              <details><summary class="hint" style="cursor:pointer">添加规则</summary><div class="form-row" style="margin-top:8px">
+                <div class="field"><label for="ruName">规则名</label><input type="text" id="ruName" placeholder="CTR 偏低"></div>
+                <div class="field"><label for="ruMetric">指标</label><select id="ruMetric"><option value="ctr">CTR</option><option value="cpa">CPA</option><option value="cpm">CPM</option><option value="cvr">CVR</option><option value="er">互动率</option><option value="spend">消耗</option><option value="conversions">转化</option><option value="negatives">负评</option></select></div>
+                <div class="field"><label for="ruOp">条件</label><select id="ruOp"><option value="lt">低于</option><option value="gt">高于</option><option value="drop_pct">较 7 日均值下降 %</option><option value="rise_pct">较 7 日均值上升 %</option></select></div>
+                <div class="field"><label for="ruValue">阈值</label><input type="text" id="ruValue" placeholder="1.0"></div>
+                <div class="field"><label for="ruScope">范围</label><select id="ruScope"><option value="all">整体与各平台</option></select></div>
+                <div class="field"><label for="ruLevel">级别</label><select id="ruLevel"><option value="warn">提醒</option><option value="critical">严重</option></select></div>
+                <div class="field"><span class="lbl">&nbsp;</span><button type="button" class="btn sm" id="ruAdd">添加规则</button></div>
+              </div></details>
+            </div></div>
+        </div>
+        <div class="row-cards">
+          <div class="card"><div class="card-head"><h3>投放日报</h3><span class="sub" id="moBriefMeta"></span><div class="right"><select id="moBriefSel" class="btn sm" style="max-width:200px" aria-label="历史日报"></select><button type="button" class="btn sm" id="moBriefCopy">复制</button><button type="button" class="btn sm" id="moPush">推送到群</button></div></div><div class="card-body" id="moBrief"></div></div>
+          <div class="card"><div class="card-head"><h3>自动推送</h3><span class="sub">飞书 / 企业微信群机器人</span></div>
+            <div class="card-body tight"><details id="whDetails"><summary class="hint" style="cursor:pointer">展开配置：填一次，以后每天自动推送</summary><div style="display:grid;gap:12px;margin-top:10px">
+              <div class="field"><span class="lbl">机器人类型</span><div class="seg" id="whType"><button type="button" data-v="feishu" class="on">飞书</button><button type="button" data-v="wecom">企业微信</button></div></div>
+              <div class="field"><label for="whUrl">Webhook 地址</label><input type="text" id="whUrl" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/…" autocomplete="off"></div>
+              <div class="field"><label for="whSecret">签名密钥 <em>飞书选填</em></label><input type="password" id="whSecret" autocomplete="off"></div>
+              <div class="row">
+                <div class="field"><label for="whHour">每日推送时间</label><select id="whHour"></select></div>
+                <div class="field"><span class="lbl">自动化</span><label class="switch" for="whAuto"><input type="checkbox" id="whAuto"><span>每天自动运行监测</span></label><label class="switch" for="whAutoPush"><input type="checkbox" id="whAutoPush"><span>运行后自动推送日报</span></label></div>
+              </div>
+              <div class="toolbar"><button type="button" class="btn sm primary" id="whSave">保存</button><button type="button" class="btn sm" id="whTest">发送测试消息</button><span class="hint" id="whHint"></span></div>
+            </div></details></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 数据接入 ========== -->
+    <section class="tool" id="tool-import" hidden>
+      <div class="tool-head"><div><h2>数据接入</h2><p>各平台后台导出的表格直接拖进来，字段自动识别；也可以配置定时拉取的数据接口。官方广告平台的接入层已预留，配上企业凭证即可启用。</p></div></div>
+      <div class="work">
+        <form class="in" id="importForm" autocomplete="off">
+          <div class="field"><span class="lbl">导入到</span><div class="seg block" id="imTarget"><button type="button" data-v="kols" class="on">达人名单</button><button type="button" data-v="metrics">投放日报</button></div></div>
+          <label class="drop" id="imDrop"><input type="file" id="imFile" accept=".csv,.tsv,.txt,.xlsx,.xls"><b>拖入或点击选择文件</b><span>CSV / Excel，蒲公英、星图、千瓜、投放后台导出的表都可以</span></label>
+          <div class="field"><label for="imPaste">或从 Excel 直接复制粘贴 <em>含表头，粘上即自动识别</em></label><textarea id="imPaste" style="min-height:120px;font-size:12px" placeholder="达人昵称	平台	粉丝数	互动率	图文报价&#10;@小满的下班日记	小红书	28万	6.2%	18000"></textarea></div>
+          <div class="field"><span class="lbl">示例表格</span><div class="chips"><button type="button" class="chip dash" data-s="pgy">蒲公英导出格式</button><button type="button" class="chip dash" data-s="xingtu">星图导出格式</button><button type="button" class="chip dash" data-s="metrics">投放日报格式</button></div></div>
+          <button type="button" class="btn block" id="imParse">重新识别字段</button>
+          <p class="hint" id="imHint"></p>
+        </form>
+        <div class="out">
+          <div class="card" id="imMapCard" hidden><div class="card-head"><h3>字段映射</h3><span class="sub" id="imMapSub"></span><div class="right"><button type="button" class="btn sm primary" id="imCommit">确认导入</button></div></div>
+            <div class="card-body"><div id="imMap" style="display:grid;gap:8px"></div><div class="blk"><h4>预览（前 5 行）</h4><div class="tbl-wrap"><table class="tbl" id="imPreview"></table></div></div></div></div>
+          <div class="card"><div class="card-head"><h3>数据连接器</h3><span class="sub">文件导入 · 定时接口 · 官方平台接入层</span><div class="right"><button type="button" class="btn sm" id="imAddConn">添加接口数据源</button></div></div><div class="card-body tight" id="imConnectors"></div></div>
+          <div class="stats" id="imStats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 设置 ========== -->
+    <section class="tool" id="tool-settings" hidden>
+      <div class="tool-head"><div><h2>设置</h2><p>模型接口、当前项目信息、数据管理。</p></div></div>
+      <div class="row-cards">
+        <div class="card"><div class="card-head"><h3>运行环境</h3></div><div class="card-body"><dl class="kv" id="stEnv"></dl></div></div>
+        <div class="card" id="stLlmCard"><div class="card-head"><h3>大模型接口</h3><span class="sub" id="stLlmSub"></span></div>
+          <div class="card-body tight" id="stLlmBody">
+            <div class="field"><span class="lbl">接口格式</span><div class="seg" id="stLlmKind"><button type="button" data-v="openai" class="on">OpenAI 兼容</button><button type="button" data-v="anthropic">Anthropic</button></div></div>
+            <div class="field"><label for="stLlmBase">接口地址</label><input type="text" id="stLlmBase" placeholder="https://api.deepseek.com/v1" autocomplete="off" spellcheck="false"></div>
+            <div class="row"><div class="field"><label for="stLlmModel">模型</label><input type="text" id="stLlmModel" placeholder="deepseek-chat" autocomplete="off"></div><div class="field"><label for="stLlmKey">API Key</label><input type="password" id="stLlmKey" autocomplete="off"></div></div>
+            <div class="toolbar"><button type="button" class="btn sm primary" id="stLlmSave">保存到服务端</button><button type="button" class="btn sm" id="stApiLocal">浏览器本地 API 设置</button><span class="hint" id="stLlmHint"></span></div>
+          </div></div>
+        <div class="card"><div class="card-head"><h3>当前项目</h3><span class="sub">内容工厂、达人匹配、评论洞察默认引用</span></div><div class="card-body"><dl class="kv" id="stProject"></dl><div class="toolbar"><button type="button" class="btn sm" id="stGoPlan">去全案策划修改</button></div></div></div>
+        <div class="card"><div class="card-head"><h3>数据</h3></div><div class="card-body tight"><dl class="kv" id="stData"></dl><div class="toolbar"><button type="button" class="btn sm" id="stExportKols">导出达人库 CSV</button><button type="button" class="btn sm" id="stExportMetrics">导出投放数据 CSV</button><button type="button" class="btn sm ghost" id="stReset">重置为示例数据</button></div><p class="hint" id="stDataHint"></p></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal" id="aboutModal" hidden role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow">作品说明</p><h2 id="aboutTitle">这是什么，怎么搭的，为什么这样设计</h2></div><button type="button" class="btn ghost sm" id="aboutClose">关闭</button></div>
+    <p>ACE 营销工作台是我为「AI 营销 ACE」校招岗位搭建的作品：一个用 AI 搭建、也由 AI 驱动、能在真实业务里跑起来的营销执行工具。它不做泛泛的"AI 写文案"，而是围绕 agency 每天要解决的具体问题，把 AI 生成、人工审校、数据接入和日常监测串成一条流程。</p>
+    <h3>六个工具，对应六类日常问题</h3>
+    <div class="map">
+      <div class="r"><span>接到 Brief，要在很短时间里拿出有洞察、能落地的全案</span><b>→</b><span>全案策划：五个智能体接力，从消费者洞察到给技术中台的执行指令</span></div>
+      <div class="r"><span>铺量期需要几十条不重样的稿件，而且得审过才能交付</span><b>→</b><span>内容工厂：批量生成、逐条审校改稿、敏感词提示、只导出已审校</span></div>
+      <div class="r"><span>评论区几百条声音没人看，负面发酵了才知道</span><b>→</b><span>评论洞察：主题归纳、原话引用、负面预警、内容机会</span></div>
+      <div class="r"><span>达人名单几十上百个，筛选靠人肉看数据</span><b>→</b><span>达人匹配：导入名单、公式算性价比、预算组合、AI 评估、合作跟进</span></div>
+      <div class="r"><span>投放数据每天看后台，异常靠人盯</span><b>→</b><span>投放监测：规则告警、AI 日报、定时推送到飞书 / 企微群</span></div>
+      <div class="r"><span>数据散在各平台后台，重复搬运</span><b>→</b><span>数据接入：表格自动识别字段，定时接口，官方平台接入层预留</span></div>
+    </div>
+    <h3>怎么工作的</h3>
+    <ul>
+      <li><b>多智能体接力，结构化输出。</b>每个智能体只负责一个专业环节，返回约定格式的 JSON，页面渲染成卡片、表格和图表；内容工厂用逐行流式输出，稿件一条条出现。</li>
+      <li><b>模型可替换。</b>在 Claude 环境中直接调用 Claude；自行部署时后端统一代理 DeepSeek、Kimi、通义千问或 Anthropic 接口，Key 不出服务端。</li>
+      <li><b>能落地的部分不靠 AI。</b>CPM / CPE / 互动率、预算组合、告警规则都是公开公式，可解释、可复核；AI 负责判断与写作，人负责确认。</li>
+      <li><b>合规内置。</b>广告法绝对化用语、酒类广告边界、AIGC 标识义务、反不正当竞争法对刷评的禁止，都写进了生成规则与审校提示。</li>
+      <li><b>数据边界诚实。</b>蒲公英没有公开 API，达人数据走表格导入；官方广告 API 需企业资质，接入层预留；示例数据均为虚构，页面会标明。</li>
+    </ul>
+    <h3>我是怎么搭的</h3>
+    <p>整个工具通过与 Claude Code 对话完成：我定义产品逻辑（每个工具解决什么问题、输入输出是什么）、设计智能体提示词与输出结构、把控文案与界面质量；AI 负责实现为可部署的 Web 应用（前端单页 + Node 后端）。这正是我理解的 AI 营销 ACE 的工作方式：人定义问题与标准，AI 放大执行。</p>
+  </div>
+</div>
+
+<div class="modal" id="apiModal" hidden role="dialog" aria-modal="true" aria-labelledby="apiTitle">
+  <div class="modal-card" style="max-width:580px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow">浏览器本地 API 设置</p><h2 id="apiTitle">接入自己的大模型接口</h2></div><button type="button" class="btn ghost sm" id="apiClose">关闭</button></div>
+    <p class="hint">Key 只保存在当前浏览器，不会上传到除你填写的接口以外的任何地方。有后端时建议改在「设置」里配置服务端接口。</p>
+    <div class="field"><span class="lbl">提供商</span><div class="seg block" id="apiProvider"></div></div>
+    <div class="field" id="apiKindField" hidden><span class="lbl">接口格式</span><div class="seg" id="apiKind"><button type="button" data-v="openai" class="on">OpenAI 兼容</button><button type="button" data-v="anthropic">Anthropic</button></div></div>
+    <div class="field"><label for="apiBase">接口地址 Base URL</label><input type="text" id="apiBase" autocomplete="off" spellcheck="false"></div>
+    <div class="field"><label for="apiKey">API Key <em>走代理时可留空</em></label><input type="password" id="apiKey" autocomplete="off"></div>
+    <div class="field"><label for="apiModel">模型</label><input type="text" id="apiModel" autocomplete="off" spellcheck="false"></div>
+    <p class="hint" id="apiHelp"></p>
+    <div class="toolbar"><button type="button" class="btn primary" id="apiSave">保存并测试连接</button><button type="button" class="btn ghost" id="apiClear">清除</button><span class="hint" id="apiStatusText"></span></div>
+  </div>
+</div>
+
+<div class="modal" id="authModal" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal-card" style="max-width:440px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow">登录</p><h2 id="authTitle">输入管理员口令</h2></div><button type="button" class="btn ghost sm" id="authClose">关闭</button></div>
+    <p class="hint">访客可以查看所有数据并试用生成；导入数据、修改状态、保存设置和推送需要登录。</p>
+    <div class="field"><label for="authToken">口令</label><input type="password" id="authToken" autocomplete="current-password"></div>
+    <div class="toolbar"><button type="button" class="btn primary" id="authLogin">登录</button><button type="button" class="btn ghost" id="authLogout" hidden>退出登录</button><span class="hint" id="authHint"></span></div>
+  </div>
+</div>
+
+<div class="modal" id="connModal" hidden role="dialog" aria-modal="true" aria-labelledby="connTitle">
+  <div class="modal-card" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow">数据连接器</p><h2 id="connTitle">接口数据源</h2></div><button type="button" class="btn ghost sm" id="cnClose">关闭</button></div>
+    <div class="row"><div class="field"><label for="cnType">类型</label><select id="cnType"><option value="http">HTTP 接口（JSON / CSV）</option><option value="oceanengine">巨量引擎 / 星图（官方 API）</option><option value="juguang">小红书聚光（官方 API）</option></select></div><div class="field"><label for="cnTarget">导入到</label><select id="cnTarget"><option value="kols">达人名单</option><option value="metrics">投放日报</option></select></div></div>
+    <div class="field"><label for="cnName">名称</label><input type="text" id="cnName" placeholder="新榜达人接口 / 每日投放报表"></div>
+    <div id="cnHttpFields" style="display:grid;gap:12px">
+      <div class="field"><label for="cnUrl">接口地址</label><input type="text" id="cnUrl" placeholder="https://…/api/kols?token=…" autocomplete="off" spellcheck="false"></div>
+      <div class="row"><div class="field"><label for="cnFormat">返回格式</label><select id="cnFormat"><option value="json">JSON</option><option value="csv">CSV</option></select></div><div class="field"><label for="cnPath">数组路径 <em>JSON</em></label><input type="text" id="cnPath" placeholder="data.list"></div></div>
+      <div class="field"><label for="cnHeaders">请求头 <em>JSON，选填</em></label><input type="text" id="cnHeaders" placeholder='{"Authorization":"Bearer xxx"}' autocomplete="off" spellcheck="false"></div>
+    </div>
+    <div id="cnOfficialFields" style="display:grid;gap:12px" hidden>
+      <p class="hint" id="cnHelp"></p>
+      <div class="row"><div class="field"><label for="cnAppId">app_id</label><input type="text" id="cnAppId" autocomplete="off"></div><div class="field"><label for="cnSecret">secret</label><input type="password" id="cnSecret" autocomplete="off"></div></div>
+      <div class="field"><label for="cnToken">access_token <em>授权后填入</em></label><input type="password" id="cnToken" autocomplete="off"></div>
+    </div>
+    <div class="toolbar"><button type="button" class="btn primary" id="cnSave">保存</button><button type="button" class="btn ghost" id="cnDelete" hidden>删除</button><span class="hint" id="cnHint"></span></div>
+  </div>
+</div>
+<div class="modal" id="setupModal" hidden role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="modal-card" style="max-width:560px">
+    <div><p class="eyebrow">初始化 · 只做一次</p><h2 id="setupTitle">填两项，开始使用</h2></div>
+    <div class="field"><label for="suToken">1 · 管理员口令 <em>自己记住，用来登录改数据</em></label><input type="password" id="suToken" autocomplete="new-password" placeholder="至少 4 位"></div>
+    <div class="field"><label for="suKey">2 · 模型 API Key <em>默认 DeepSeek</em></label><input type="password" id="suKey" autocomplete="off" placeholder="sk-…"></div>
+    <p class="hint" id="suHelp"></p>
+    <details id="suAdv"><summary class="hint" style="cursor:pointer">换一家模型或自定义接口</summary>
+      <div style="display:grid;gap:10px;margin-top:10px">
+        <div class="field"><span class="lbl">提供商</span><div class="seg block" id="suProvider"></div></div>
+        <div class="field"><label for="suBase">接口地址</label><input type="text" id="suBase" autocomplete="off" spellcheck="false"></div>
+        <div class="field"><label for="suModel">模型</label><input type="text" id="suModel" autocomplete="off" spellcheck="false"></div>
+      </div></details>
+    <div class="toolbar"><button type="button" class="btn primary" id="suSave">完成</button><button type="button" class="btn ghost" id="suLater">先只设口令</button><span class="hint" id="suHint"></span></div>
+  </div>
+</div>
+<div class="modal" id="tutModal" hidden role="dialog" aria-modal="true" aria-labelledby="tutTitle">
+  <div class="modal-card" style="max-width:640px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow">完整流程</p><h2 id="tutTitle">五步，每步一个动作</h2></div><button type="button" class="btn ghost sm" id="tutClose">关闭</button></div>
+    <div class="welcome-steps">
+      <div class="r"><b>1</b><span><b>定项目。</b>「全案策划」把 Brief 粘进去 → 生成。客户改了或不用 AI 的方案：打开「项目设定」改主张、核心信息，或把客户确认版粘进去 → 保存。后面所有工具都用这个版本，不用上传文件。</span></div>
+      <div class="r"><b>2</b><span><b>出内容。</b>「内容工厂」选类型和数量 → 开始 → 逐条改稿、标审校 → 导出 CSV 给达人或发布。</span></div>
+      <div class="r"><b>3</b><span><b>选达人。</b>「数据接入」把蒲公英 / 星图导出的表拖进来 → 「达人匹配」一键推荐组合 → 生成合作 Brief → 在表里记状态和跟进日。</span></div>
+      <div class="r"><b>4</b><span><b>盯投放。</b>每天把投放后台导出的日报表拖进「数据接入」 → 「投放监测」自动告警 → 运行监测出日报 → 推到群（机器人填一次后每天自动）。</span></div>
+      <div class="r"><b>5</b><span><b>看反馈。</b>「评论洞察」粘评论 → 分析 → 负面先回应，机会词反哺下一批内容。</span></div>
+    </div>
+    <h3 style="font-size:13px;color:var(--accent);margin-top:4px">常见问题</h3>
+    <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
+      <li><b>改方案要重新上传吗？</b>不用。方案不是文件，是「项目设定」。改完保存即可。</li>
+      <li><b>上传表格会影响方案吗？</b>不会。表格只进达人库和投放数据，方案只在项目设定，互不影响。</li>
+      <li><b>换一个客户怎么办？</b>在「全案策划」粘新 Brief 生成，项目设定自动切换；旧的达人和投放数据不要了就在表里删除，或在「设置」里重置。一个部署同一时间服务一个项目，多客户并行建议分开部署。</li>
+      <li><b>数据存在哪？</b>部署版存在服务端，所有人看到同一份；Claude 版和本地版存在自己的浏览器里。</li>
+    </ul>
+  </div>
+</div>
+<div class="tour" id="tour" hidden><div class="spot" id="tourSpot"></div><div class="tcard" id="tourCard"><div class="step" id="tourStep"></div><div class="tbar"><i id="tourBar"></i></div><h4 id="tourTitle"></h4><p id="tourText"></p><div class="acts"><button type="button" class="btn ghost sm skip" id="tourSkip">跳过</button><button type="button" class="btn sm" id="tourPrev">上一步</button><button type="button" class="btn sm primary" id="tourNext">下一步</button></div></div></div>
+<div class="toast" id="toast" hidden></div>
