@@ -94,19 +94,23 @@ function toCsv(rows, cols, labels) { const esc = (v) => '"' + String(v == null ?
 
 // ===================== 图表（SVG，单系列折线 / 分类柱） =====================
 const SERIES = ["var(--s1)", "var(--s2)", "var(--s3)"];
+const SVG_NS = "http://www.w3.org/2000/svg";
+function sv(tag, attrs, ...kids) { const el = document.createElementNS(SVG_NS, tag); if (attrs) for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else if (k === "style") el.style.cssText = v; else el.setAttribute(k, v); } for (const kid of kids.flat(Infinity)) { if (kid == null || kid === false) continue; el.append(kid.nodeType ? kid : document.createTextNode(String(kid))); } return el; }
+const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function lineChart({ title, sub, points, color = "var(--s1)", fmt = (v) => fmtN(v), W = 600, H = 190 }) {
   const wrap = h("div", { class: "chart" }, h("div", { class: "ttl" }, h("span", null, title), h("span", null, sub || "")));
   const pts = points.filter((p) => p.y != null); if (pts.length < 2) { wrap.append(h("div", { class: "mini" }, "数据不足两天")); return wrap; }
   const L = 44, R = 12, T = 12, B = 26; const max = Math.max(...pts.map((p) => p.y)) * 1.12 || 1;
   const sx = (i) => L + (i / (pts.length - 1)) * (W - L - R), sy = (v) => T + (1 - v / max) * (H - T - B);
-  const svg = h("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title });
-  const grid = h("g", { class: "grid" }); for (let i = 0; i <= 4; i++) { const v = max * i / 4, y = sy(v); grid.append(h("line", { x1: L, x2: W - R, y1: y, y2: y })); grid.append(h("text", { x: L - 6, y: y + 3.5, "text-anchor": "end" }, fmt(v))); } svg.append(grid);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title }); const gid = uid("g");
+  svg.append(sv("defs", null, sv("linearGradient", { id: gid, x1: "0", y1: "0", x2: "0", y2: "1" }, sv("stop", { offset: "0%", "stop-color": color, "stop-opacity": "0.35" }), sv("stop", { offset: "100%", "stop-color": color, "stop-opacity": "0" }))));
+  const grid = sv("g", { class: "grid" }); for (let i = 0; i <= 4; i++) { const v = max * i / 4, y = sy(v); grid.append(sv("line", { x1: L, x2: W - R, y1: y, y2: y })); grid.append(sv("text", { x: L - 6, y: y + 3.5, "text-anchor": "end" }, fmt(v))); } svg.append(grid);
   const path = pts.map((p, i) => (i ? "L" : "M") + sx(i).toFixed(1) + " " + sy(p.y).toFixed(1)).join(" ");
-  svg.append(h("path", { class: "area", d: path + ` L${sx(pts.length - 1).toFixed(1)} ${sy(0)} L${L} ${sy(0)} Z`, fill: color }), h("path", { class: "line", d: path, stroke: color }));
-  [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach((i) => svg.append(h("text", { x: sx(i), y: H - 8, "text-anchor": i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle" }, pts[i].x.slice(5))));
-  const xh = h("line", { class: "xh", y1: T, y2: H - B, x1: 0, x2: 0, visibility: "hidden" }), dot = h("circle", { class: "dot", r: 4.5, fill: color, visibility: "hidden" }); svg.append(xh, dot);
+  svg.append(sv("path", { class: "area", d: path + ` L${sx(pts.length - 1).toFixed(1)} ${sy(0)} L${L} ${sy(0)} Z`, fill: `url(#${gid})` }), sv("path", { class: "line" + (REDUCED ? "" : " draw"), d: path, stroke: color }));
+  [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach((i) => svg.append(sv("text", { x: sx(i), y: H - 8, "text-anchor": i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle" }, pts[i].x.slice(5))));
+  const xh = sv("line", { class: "xh", y1: T, y2: H - B, x1: 0, x2: 0, visibility: "hidden" }), dot = sv("circle", { class: "dot", r: 4.5, fill: color, visibility: "hidden" }); svg.append(xh, dot);
   const tip = h("div", { class: "tip", hidden: true }); wrap.append(svg, tip);
-  const hit = h("rect", { class: "hit", x: L, y: 0, width: W - L - R, height: H }); svg.append(hit);
+  const hit = sv("rect", { class: "hit", x: L, y: 0, width: W - L - R, height: H }); svg.append(hit);
   const move = (ev) => { const rect = svg.getBoundingClientRect(); const x = (ev.clientX - rect.left) / rect.width * W; const i = Math.max(0, Math.min(pts.length - 1, Math.round((x - L) / (W - L - R) * (pts.length - 1)))); const p = pts[i];
     xh.setAttribute("x1", sx(i)); xh.setAttribute("x2", sx(i)); xh.setAttribute("visibility", "visible"); dot.setAttribute("cx", sx(i)); dot.setAttribute("cy", sy(p.y)); dot.setAttribute("visibility", "visible");
     tip.hidden = false; tip.textContent = ""; tip.append(p.x + " ", h("b", null, fmt(p.y))); tip.style.left = (sx(i) / W * rect.width) + "px"; tip.style.top = (sy(p.y) / H * rect.height + 24) + "px"; };
@@ -118,14 +122,14 @@ function barChart({ title, sub, bars, fmt = (v) => fmtN(v), W = 600, H = 190 }) 
   const wrap = h("div", { class: "chart" }, h("div", { class: "ttl" }, h("span", null, title), h("span", null, sub || "")));
   if (!bars.length) { wrap.append(h("div", { class: "mini" }, "暂无数据")); return wrap; }
   const L = 12, R = 12, T = 22, B = 26; const max = Math.max(...bars.map((b) => b.value)) * 1.15 || 1; const n = bars.length; const slot = (W - L - R) / n; const bw = Math.min(64, slot * 0.6);
-  const svg = h("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title }); const total = bars.reduce((a, b) => a + b.value, 0) || 1;
-  svg.append(h("line", { class: "axis", x1: L, x2: W - R, y1: H - B, y2: H - B }));
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": title }); const total = bars.reduce((a, b) => a + b.value, 0) || 1;
+  svg.append(sv("line", { class: "axis", x1: L, x2: W - R, y1: H - B, y2: H - B }));
   const tip = h("div", { class: "tip", hidden: true });
   bars.forEach((b, i) => { const x = L + slot * i + (slot - bw) / 2, hgt = (b.value / max) * (H - T - B), y = H - B - hgt;
-    const rect = h("rect", { class: "bar", x, y, width: bw, height: Math.max(hgt, 1), fill: b.color || SERIES[i % 3] });
+    const rect = sv("rect", { class: "bar" + (REDUCED ? "" : " grow"), x, y, width: bw, height: Math.max(hgt, 1), fill: b.color || SERIES[i % 3], style: `animation-delay:${i * 80}ms` });
     const show = (ev) => { const r = svg.getBoundingClientRect(); tip.hidden = false; tip.textContent = ""; tip.append(b.label + " ", h("b", null, fmt(b.value)), ` · ${r2(b.value / total * 100, 1)}%`); tip.style.left = ((x + bw / 2) / W * r.width) + "px"; tip.style.top = (y / H * r.height) + "px"; };
     rect.addEventListener("pointerenter", show); rect.addEventListener("pointermove", show); rect.addEventListener("pointerleave", () => { tip.hidden = true; });
-    svg.append(rect, h("text", { class: "blab", x: x + bw / 2, y: y - 6, "text-anchor": "middle" }, fmt(b.value)), h("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }, b.label)); });
+    svg.append(rect, sv("text", { class: "blab", x: x + bw / 2, y: y - 6, "text-anchor": "middle" }, fmt(b.value)), sv("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }, b.label)); });
   wrap.append(svg, tip); return wrap;
 }
 </script>

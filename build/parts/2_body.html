@@ -21,6 +21,7 @@
       <span class="mode" id="modeText"></span>
       <button type="button" class="linkbtn accent" id="authBtn" hidden>登录以编辑</button>
       <button type="button" class="linkbtn" id="apiBtn" hidden>API 设置</button>
+      <button type="button" class="linkbtn" id="themeBtn">深色模式</button>
       <button type="button" class="linkbtn accent" id="helpBtn">重看引导</button>
       <button type="button" class="linkbtn" id="tutBtn">完整流程</button>
       <button type="button" class="linkbtn" id="aboutBtn">关于本作品</button>
@@ -31,10 +32,10 @@
 
     <!-- ========== 开始 ========== -->
     <section class="tool" id="tool-start">
-      <div class="tool-head"><div><h2>开始</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
+      <div class="tool-head hero"><div><h2>一段 Brief，一屋子产出</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
       <div class="stack">
         <div class="notice" id="startAi"><div id="startAiText"></div></div>
-        <div class="card"><div class="card-head"><h3>一键出全套</h3><span class="sub">粘一段 Brief，方案、稿件、达人策略一起长出来</span></div>
+        <div class="card glow" id="oneCard"><div class="card-head"><h3>一键出全套</h3><span class="sub">粘一段 Brief，方案、稿件、达人策略一起长出来</span></div>
           <div class="card-body tight">
             <textarea id="oneBrief" style="min-height:84px;width:100%;padding:9px 12px;border-radius:10px;border:1px solid transparent;background:var(--surface-2);color:var(--fg);font-size:13.5px;line-height:1.5;resize:vertical" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
             <div class="toolbar"><button type="button" class="btn primary" id="oneRun">一键出全套</button><label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 约 1-2 分钟</span></label><span class="hint" id="oneHint"></span></div>

@@ -473,5 +473,27 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .chk.done .t { color: var(--muted); text-decoration: line-through; }
 @media (max-width: 520px) { .chk { grid-template-columns: 28px minmax(0, 1fr); } .chk .btn { grid-column: 2; justify-self: start; } }
 .chk.running i { border-color: var(--accent); color: var(--accent); animation: blink 1s infinite; } .chk.fail i { border-color: var(--bad); color: var(--bad); } .chk.skip i { color: var(--muted); }
+/* ---------- fancy ---------- */
+.main { background-image: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
+.brand .logo { background: linear-gradient(135deg, var(--ink), var(--accent)); color: #fff; }
+.nav button.on { box-shadow: inset 3px 0 0 var(--accent); }
+.tool-head.hero h2 { font-size: 30px; letter-spacing: -.02em; background: linear-gradient(90deg, var(--accent), #8b5cf6 55%, var(--s3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.card.glow { position: relative; overflow: visible; }
+.card.glow::before { content: ""; position: absolute; inset: -40px -20px auto -20px; height: 140px; background: radial-gradient(60% 80% at 20% 50%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%), radial-gradient(50% 80% at 80% 40%, color-mix(in srgb, #8b5cf6 24%, transparent), transparent 70%); filter: blur(28px); z-index: -1; opacity: .9; animation: floaty 10s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes floaty { from { transform: translateX(-6%) } to { transform: translateX(6%) } }
+.card.glow.running { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 50%, transparent), 0 10px 50px -12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.card.glow.running::after { content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 2px; background: linear-gradient(120deg, var(--accent), #8b5cf6, var(--s3), var(--accent)); background-size: 300% 300%; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spinGrad 3s linear infinite; pointer-events: none; }
+@keyframes spinGrad { to { background-position: 300% 0 } }
+.stat .v { background: linear-gradient(90deg, var(--fg), color-mix(in srgb, var(--fg) 70%, var(--accent))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.chk.done i { animation: popIn .35s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes popIn { from { transform: scale(.4); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+.chart .line.draw { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: drawLine 1.2s ease-out forwards; }
+@keyframes drawLine { to { stroke-dashoffset: 0 } }
+.chart .bar.grow { transform-box: fill-box; transform-origin: bottom; animation: growBar .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes growBar { from { transform: scaleY(0) } }
+.btn.primary { background: linear-gradient(135deg, var(--ink), color-mix(in srgb, var(--ink) 70%, var(--accent))); }
+.btn.primary:hover { opacity: 1; box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent); transform: translateY(-1px); }
+.gen .pill.live { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
+.note { transition: transform .15s ease, box-shadow .15s ease; } .note:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
