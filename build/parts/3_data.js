@@ -285,7 +285,10 @@ const SEED_TEMPLATE = {
   connectors: DEFAULT_CONNECTORS,
   insights: [{ id: "ins-demo", createdAt: "", context: SEED_INSIGHTS.context, count: 30, result: SEED_INSIGHTS, source: "示例" }]
 };
-function addDaysStr(date, n) { const d = new Date(date + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+// 空白起点：首次打开不预装示例，只有规则与连接器；示例数据（SEED_TEMPLATE）由「载入示例数据」按钮手动载入
+const EMPTY_TEMPLATE = { settings: SEED_TEMPLATE.settings, project: null, plan: null, kols: [], metricsTemplate: [], rules: DEFAULT_RULES, alerts: [], briefs: [], batches: [], connectors: DEFAULT_CONNECTORS, insights: [] };
+const SERVER_SEED = EMPTY_TEMPLATE;
+function addDaysStr(date, n) { if (!date) return ""; const d = new Date(date + "T00:00:00Z"); if (isNaN(d)) return ""; d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function materializeSeed(t, today) {
   const seed = JSON.parse(JSON.stringify(t));
   seed.metrics = (seed.metricsTemplate || []).map((r) => { const { dayOffset, ...rest } = r; return { date: addDaysStr(today, dayOffset), ...rest }; }); delete seed.metricsTemplate;

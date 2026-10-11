@@ -23,7 +23,7 @@ if not node:
     print("未找到 node，跳过 server/seed.json 生成（已有文件保持不变）")
     sys.exit(0)
 data_js = re.sub(r"</?script[^>]*>", "", read("3_data.js"))
-script = data_js + "\nprocess.stdout.write(JSON.stringify(SEED_TEMPLATE));\n"
+script = data_js + "\nprocess.stdout.write(JSON.stringify(SERVER_SEED));\n"
 tmp = os.path.join(ROOT, "build", "_seed_tmp.js")
 with open(tmp, "w", encoding="utf-8") as f:
     f.write(script)
@@ -32,6 +32,6 @@ try:
     seed = json.loads(out)
     with open(os.path.join(ROOT, "server", "seed.json"), "w", encoding="utf-8") as f:
         json.dump(seed, f, ensure_ascii=False)
-    print("wrote server/seed.json: %d kols, %d metric rows, %d rules" % (len(seed["kols"]), len(seed["metricsTemplate"]), len(seed["rules"])))
+    print("wrote server/seed.json（空白起点）: %d kols, %d metric rows, %d rules" % (len(seed["kols"]), len(seed["metricsTemplate"]), len(seed["rules"])))
 finally:
     os.remove(tmp)

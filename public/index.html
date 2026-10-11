@@ -497,6 +497,127 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .btn.primary:hover { opacity: 1; box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent); transform: translateY(-1px); }
 .gen .pill.live { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
 .note { transition: transform .15s ease, box-shadow .15s ease; } .note:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+/* ---------- v3.2 · 开始页：Hero / 流水线 / 实时流 / 特效 ---------- */
+.tool { animation: toolIn .38s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes toolIn { from { opacity: 0; transform: translateY(10px); } }
+.main { background-image: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px), radial-gradient(900px 520px at 8% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%), radial-gradient(760px 420px at 100% 0%, color-mix(in srgb, #8b5cf6 8%, transparent), transparent 70%); background-size: 22px 22px, auto, auto; background-attachment: scroll, fixed, fixed; }
+:root[data-theme="dark"] .main { background-image: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px), radial-gradient(900px 520px at 8% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), radial-gradient(760px 420px at 100% 0%, color-mix(in srgb, #8b5cf6 14%, transparent), transparent 70%); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .main { background-image: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px), radial-gradient(900px 520px at 8% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), radial-gradient(760px 420px at 100% 0%, color-mix(in srgb, #8b5cf6 14%, transparent), transparent 70%); } }
+.brand .logo { background: linear-gradient(135deg, var(--accent), #8b5cf6 55%, var(--s3)); background-size: 220% 220%; animation: gradShift 9s ease infinite; box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 80%, transparent); }
+@keyframes gradShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.nav button svg { transition: transform .22s cubic-bezier(.2,.9,.3,1.3); }
+.nav button:hover svg { transform: scale(1.14) rotate(-5deg); }
+.nav button.on svg { color: var(--accent); }
+.toast { animation: toastIn .35s cubic-bezier(.2,.9,.3,1.25); }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 16px) scale(.96); } }
+
+/* hero */
+.hero-wrap { position: relative; display: grid; gap: 26px; padding: 26px 0 8px; isolation: isolate; }
+.hero-wrap .fx { position: absolute; inset: -40px -24px -24px; width: calc(100% + 48px); height: calc(100% + 64px); z-index: 0; pointer-events: none; opacity: .9; }
+.aurora { position: absolute; inset: -60px -40px; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(70px) saturate(130%); opacity: .55; }
+.aurora i { position: absolute; width: 46%; height: 60%; border-radius: 50%; mix-blend-mode: normal; }
+.aurora i:nth-child(1) { left: -8%; top: -10%; background: var(--accent); animation: drift1 16s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { right: -6%; top: 0; background: #8b5cf6; animation: drift2 19s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { left: 30%; bottom: -30%; background: var(--s3); width: 40%; height: 50%; animation: drift3 22s ease-in-out infinite alternate; }
+@keyframes drift1 { to { transform: translate(14%, 18%) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(-16%, 14%) scale(.9); } }
+@keyframes drift3 { to { transform: translate(-10%, -22%) scale(1.2); } }
+:root[data-theme="dark"] .aurora { opacity: .42; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .aurora { opacity: .42; } }
+.hero-main { position: relative; z-index: 1; display: grid; gap: 10px; justify-items: start; }
+.hero-title { font-size: clamp(34px, 5.2vw, 56px); font-weight: 800; letter-spacing: -.03em; line-height: 1.08; background: linear-gradient(90deg, var(--fg) 0%, var(--accent) 35%, #8b5cf6 55%, var(--fg) 85%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s linear infinite; padding-right: .1em; }
+@keyframes sheen { to { background-position: -220% 0; } }
+.hero-sub { font-size: 15.5px; color: var(--fg-2); }
+.hero-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 80%, transparent); border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; color: var(--muted); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.hero-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.hero-status.ok { color: var(--ok); } .hero-status.ok i { background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 20%, transparent); animation: blink 2s infinite; }
+.hero-status.warn { color: var(--warn); } .hero-status.warn i { background: var(--warn); }
+
+/* glass one-click card */
+.card.glass { position: relative; background: color-mix(in srgb, var(--surface) 74%, transparent); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); border-color: color-mix(in srgb, var(--accent) 22%, var(--line)); box-shadow: var(--shadow); }
+.card.one { display: grid; gap: 18px; padding: 20px; }
+.one-in { display: grid; gap: 14px; }
+.one-in textarea { width: 100%; min-height: 96px; padding: 14px 16px; border-radius: 14px; border: 1px solid transparent; background: color-mix(in srgb, var(--surface-2) 80%, transparent); color: var(--fg); font-size: 15px; line-height: 1.6; resize: vertical; transition: border-color .15s, box-shadow .15s, background .15s; }
+.one-in textarea:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 4px var(--accent-soft); }
+.one-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.one-actions .hint { flex-basis: 100%; }
+@media (min-width: 760px) { .one-actions .hint { flex-basis: auto; margin-left: auto; } }
+.btn-hero { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--accent), #8b5cf6); background-size: 160% 160%; box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent); overflow: hidden; transition: transform .16s ease, box-shadow .2s ease, background-position .4s ease; }
+.btn-hero svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.38) 50%, transparent 70%); transform: translateX(-120%); transition: transform .7s ease; }
+.btn-hero:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 40px -14px color-mix(in srgb, var(--accent) 90%, transparent); background-position: 100% 50%; }
+.btn-hero:hover:not(:disabled)::after { transform: translateX(120%); }
+.btn-hero:active:not(:disabled) { transform: translateY(0); }
+.btn-hero.ready:not(:disabled) { animation: pulseRing 2.6s ease-out infinite; }
+@keyframes pulseRing { 0% { box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 70% { box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 0 16px transparent; } 100% { box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 0 0 transparent; } }
+.btn-hero:disabled { opacity: .45; cursor: not-allowed; filter: saturate(.5); }
+.btn-hero.busy svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 6px 0 2px; position: relative; }
+.pnode { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; min-width: 0; padding: 0 6px; animation: pop .35s ease both; }
+.pnode + .pnode::before { content: ""; position: absolute; top: 23px; left: calc(-50% + 23px); width: calc(100% - 46px); height: 2px; background: var(--line-2); border-radius: 1px; }
+.pnode + .pnode::after { content: ""; position: absolute; top: 23px; left: calc(-50% + 23px); width: calc(100% - 46px); height: 2px; border-radius: 1px; background: linear-gradient(90deg, var(--ok), var(--accent)); transform: scaleX(0); transform-origin: left; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.pnode.lit + .pnode::after { transform: scaleX(1); }
+.pnode .ring { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1.5px solid var(--line-2); color: var(--muted); transition: background .3s, border-color .3s, color .3s, box-shadow .3s, transform .3s; }
+.pnode .ring svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.pnode .ring .chk, .pnode .ring .x { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 18px; opacity: 0; transform: scale(.4); transition: opacity .25s, transform .35s cubic-bezier(.2,.9,.3,1.4); }
+.pnode.running .ring { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 28px -4px color-mix(in srgb, var(--accent) 70%, transparent); transform: scale(1.08); }
+.pnode.running .ring::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 55%, var(--accent) 100%); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px)); animation: spin 1.1s linear infinite; }
+.pnode.running .ring svg { animation: breathe 1.4s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.12); opacity: .7; } }
+.pnode.done .ring { background: var(--ok); border-color: var(--ok); color: #fff; box-shadow: 0 8px 22px -8px color-mix(in srgb, var(--ok) 80%, transparent); animation: popIn .45s cubic-bezier(.2,.9,.3,1.4); }
+.pnode.done .ring svg { opacity: 0; } .pnode.done .ring .chk { opacity: 1; transform: scale(1); }
+.pnode.fail .ring { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); } .pnode.fail .ring svg { opacity: 0; } .pnode.fail .ring .x { opacity: 1; transform: scale(1); }
+.pnode.skip .ring { opacity: .45; border-style: dashed; }
+.pnode .t { font-size: 12.5px; font-weight: 700; color: var(--fg-2); white-space: nowrap; }
+.pnode.running .t { color: var(--accent); } .pnode.done .t { color: var(--fg); }
+.pnode .s { font-size: 11.5px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.5em; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .pnode .ring { width: 36px; height: 36px; } .pnode .ring svg { width: 16px; height: 16px; } .pnode + .pnode::before, .pnode + .pnode::after { top: 18px; left: calc(-50% + 18px); width: calc(100% - 36px); } .pnode .t { font-size: 11px; } .pnode .s { display: none; } }
+
+/* live stream line */
+.live { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 92%, var(--accent)); color: var(--ink-fg); font-family: var(--mono); font-size: 12px; overflow: hidden; white-space: nowrap; animation: pop .3s ease both; }
+.live b { color: var(--accent); flex: none; font-weight: 700; letter-spacing: .08em; }
+.live b { color: #9db4ff; }
+.live .txt { flex: 1; min-width: 0; display: flex; justify-content: flex-start; overflow: hidden; opacity: .92; }
+.live.fade .txt { justify-content: flex-end; -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
+.live .txt > span { white-space: nowrap; flex: none; }
+.live .cur { flex: none; width: 7px; height: 14px; background: var(--accent); border-radius: 1px; animation: blink .9s steps(1) infinite; }
+.live.idle .cur { background: var(--ok); animation: none; }
+
+/* feed of fresh drafts */
+.feed { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.feed .fi { background: color-mix(in srgb, var(--surface-2) 85%, transparent); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 5px; min-width: 0; animation: flyIn .55s cubic-bezier(.2,.9,.3,1.15) both; }
+@keyframes flyIn { from { opacity: 0; transform: translateY(18px) scale(.96); filter: blur(6px); } }
+.feed .fi .fh { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.feed .fi .fh .plat { font-size: 10px; padding: 2px 6px; }
+.feed .fi h5 { font-size: 13px; font-weight: 700; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.feed .fi p { font-size: 12px; color: var(--fg-2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.feed .fi.out { animation: flyOut .3s ease both; }
+@keyframes flyOut { to { opacity: 0; transform: scale(.94); } }
+
+/* summary */
+.one-sum { display: grid; gap: 14px; animation: pop .4s ease both; }
+.one-sum .stats .stat { animation: flyIn .55s cubic-bezier(.2,.9,.3,1.15) both; }
+.one-sum .stats .stat:nth-child(2) { animation-delay: .07s; } .one-sum .stats .stat:nth-child(3) { animation-delay: .14s; } .one-sum .stats .stat:nth-child(4) { animation-delay: .21s; } .one-sum .stats .stat:nth-child(5) { animation-delay: .28s; }
+.one-sum .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.one-sum .acts .cnt { font-size: 13px; color: var(--muted); margin-right: auto; }
+
+/* interactive tiles & spotlight cards */
+.stat { position: relative; overflow: hidden; transition: transform .18s ease, box-shadow .25s ease; will-change: transform; }
+.stat::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%); opacity: 0; transition: opacity .25s; }
+.stat:hover { box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); } .stat:hover::after { opacity: 1; }
+.card { position: relative; }
+.card:not(.glow)::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 9%, transparent), transparent 45%); opacity: 0; transition: opacity .3s; }
+.card:not(.glow):hover::after { opacity: 1; }
+details.more > summary { cursor: pointer; list-style: none; border-bottom: 0; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary .pill { margin-left: auto; }
+details.more[open] > summary { border-bottom: 1px solid var(--line); }
+details.more .tile { align-content: start; }
+.stats#startOutput { animation: pop .4s ease both; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -504,7 +625,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   <aside class="side">
     <div class="brand"><div class="logo">ACE</div><div><b>ACE 营销工作台</b><small>AI 驱动的营销执行工具</small></div></div>
     <nav class="nav" id="nav">
-      <button type="button" data-tool="start" class="on"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8"/><path d="M6 10v10h12V10"/></svg><span>开始<span class="d">把业务搬进来</span></span></button>
+      <button type="button" data-tool="start" class="on"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8"/><path d="M6 10v10h12V10"/></svg><span>开始<span class="d">一键出全套</span></span></button>
       <div class="grp">策划与内容</div>
       <button type="button" data-tool="plan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>全案策划<span class="d">粘 Brief 出方案</span></span></button>
       <button type="button" data-tool="factory"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/></svg><span>内容工厂<span class="d">批量出稿</span></span></button>
@@ -533,36 +654,54 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 
     <!-- ========== 开始 ========== -->
     <section class="tool" id="tool-start">
-      <div class="tool-head hero"><div><h2>一段 Brief，一屋子产出</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
-      <div class="stack">
-        <div class="notice" id="startAi"><div id="startAiText"></div></div>
-        <div class="card glow" id="oneCard"><div class="card-head"><h3>一键出全套</h3><span class="sub">粘一段 Brief，方案、稿件、达人策略一起长出来</span></div>
-          <div class="card-body tight">
-            <textarea id="oneBrief" style="min-height:84px;width:100%;padding:9px 12px;border-radius:10px;border:1px solid transparent;background:var(--surface-2);color:var(--fg);font-size:13.5px;line-height:1.5;resize:vertical" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
-            <div class="toolbar"><button type="button" class="btn primary" id="oneRun">一键出全套</button><label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 约 1-2 分钟</span></label><span class="hint" id="oneHint"></span></div>
-            <div class="welcome-steps" id="oneProgress" hidden></div>
-            <div class="stats" id="oneSummary" hidden></div>
-          </div></div>
-        <div class="stats" id="startOutput"></div>
-        <div class="card"><div class="card-head"><h3>三步搬进来</h3><span class="sub">做完一步自动打勾</span></div><div class="card-body tight" id="startSteps"></div></div>
-        <div class="row-cards">
-          <div class="card"><div class="card-head"><h3>平台表格怎么导出</h3></div><div class="card-body tight">
-            <div class="welcome-steps">
-              <div class="r"><b>蒲</b><span><b>蒲公英 / 星图 / 千瓜</b>：在达人列表页点「导出」，得到 Excel，直接拖进「数据接入」。</span></div>
-              <div class="r"><b>投</b><span><b>投放后台</b>（巨量、聚光、腾讯广告）：报表页选日期 → 「下载报表」，拖进「数据接入」选「投放日报」。</span></div>
-              <div class="r"><b>表</b><span><b>自己的 Excel</b>：表头有「名称、平台、粉丝、互动、报价」或「日期、渠道、消耗、曝光、点击、转化」就能认。</span></div>
-            </div></div></div>
-          <div class="card"><div class="card-head"><h3>常见问题</h3></div><div class="card-body tight">
-            <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
-              <li><b>要配置 AI 吗？</b>不用，管理员已接入，所有生成按钮直接点。</li>
-              <li><b>改方案要重传吗？</b>不用，改「全案策划 → 项目设定」。</li>
-              <li><b>示例数据怎么清掉？</b>登录后点下面的按钮，一次清空。</li>
-              <li><b>换客户？</b>粘新 Brief 生成即可。</li>
-            </ul>
-            <div class="toolbar"><button type="button" class="btn sm ghost" id="startClear">清空示例数据</button><span class="hint" id="startClearHint"></span></div>
-          </div></div>
+      <div class="hero-wrap">
+        <canvas class="fx" id="fxCanvas" aria-hidden="true"></canvas>
+        <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="hero-main">
+          <div class="eyebrow">ACE · AI MARKETING WORKBENCH</div>
+          <h2 class="hero-title">从一段 Brief 开始</h2>
+          <p class="hero-sub">方案、稿件、达人策略，一键生成。</p>
+          <div class="hero-status" id="startAi"><i></i><span id="startAiText"></span></div>
+        </div>
+        <div class="card glass glow one" id="oneCard">
+          <div class="one-in">
+            <textarea id="oneBrief" rows="3" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
+            <div class="one-actions">
+              <button type="button" class="btn-hero" id="oneRun"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg><span>一键出全套</span></button>
+              <label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 1-2 分钟</span></label>
+              <button type="button" class="chip dash" id="oneSwap">换一段 Brief</button>
+              <span class="hint" id="oneHint"></span>
+            </div>
+          </div>
+          <div class="pipe" id="onePipe" hidden></div>
+          <div class="live" id="oneLive" hidden><b>AI</b><span class="txt" id="oneLiveText"></span><i class="cur"></i></div>
+          <div class="feed" id="oneFeed" hidden></div>
+          <div class="one-sum" id="oneSummary" hidden></div>
         </div>
       </div>
+      <div class="stats" id="startOutput" hidden></div>
+      <details class="card more" id="startMore">
+        <summary class="card-head"><h3>把真实业务搬进来</h3><span class="sub" id="startIntro"></span><span class="pill" id="startMorePill"></span></summary>
+        <div class="card-body tight">
+          <div id="startSteps" style="display:grid;gap:8px"></div>
+          <div class="row-cards">
+            <div class="tile"><h4>平台表格怎么导出</h4>
+              <div class="welcome-steps">
+                <div class="r"><b>蒲</b><span><b>蒲公英 / 星图 / 千瓜</b>：达人列表页点「导出」，Excel 直接拖进「数据接入」。</span></div>
+                <div class="r"><b>投</b><span><b>投放后台</b>（巨量、聚光、腾讯广告）：报表页「下载报表」，拖进「数据接入」选「投放日报」。</span></div>
+                <div class="r"><b>表</b><span><b>自己的 Excel</b>：表头有「名称、平台、粉丝、互动、报价」或「日期、渠道、消耗、曝光、点击、转化」就能认。</span></div>
+              </div></div>
+            <div class="tile"><h4>常见问题</h4>
+              <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
+                <li><b>要配置 AI 吗？</b>不用，管理员已接入。</li>
+                <li><b>改方案要重传吗？</b>不用，改「全案策划 → 项目设定」。</li>
+                <li><b>想先看看效果？</b>点「载入示例数据」，看完一键清空。</li>
+                <li><b>换客户？</b>粘新 Brief 生成即可。</li>
+              </ul></div>
+          </div>
+          <div class="toolbar"><button type="button" class="btn sm" id="startDemo">载入示例数据</button><button type="button" class="btn sm ghost" id="startClear">清空示例数据</button><span class="hint" id="startClearHint"></span></div>
+        </div>
+      </details>
     </section>
 
     <!-- ========== 全案策划 ========== -->
@@ -796,7 +935,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
             <div class="toolbar"><button type="button" class="btn sm primary" id="stLlmSave">保存到服务端</button><button type="button" class="btn sm" id="stApiLocal">浏览器本地 API 设置</button><span class="hint" id="stLlmHint"></span></div>
           </div></div>
         <div class="card"><div class="card-head"><h3>当前项目</h3><span class="sub">内容工厂、达人匹配、评论洞察默认引用</span></div><div class="card-body"><dl class="kv" id="stProject"></dl><div class="toolbar"><button type="button" class="btn sm" id="stGoPlan">去全案策划修改</button></div></div></div>
-        <div class="card"><div class="card-head"><h3>数据</h3></div><div class="card-body tight"><dl class="kv" id="stData"></dl><div class="toolbar"><button type="button" class="btn sm" id="stExportKols">导出达人库 CSV</button><button type="button" class="btn sm" id="stExportMetrics">导出投放数据 CSV</button><button type="button" class="btn sm ghost" id="stReset">重置为示例数据</button></div><p class="hint" id="stDataHint"></p></div></div>
+        <div class="card"><div class="card-head"><h3>数据</h3></div><div class="card-body tight"><dl class="kv" id="stData"></dl><div class="toolbar"><button type="button" class="btn sm" id="stExportKols">导出达人库 CSV</button><button type="button" class="btn sm" id="stExportMetrics">导出投放数据 CSV</button><button type="button" class="btn sm ghost" id="stReset">清空全部数据</button></div><p class="hint" id="stDataHint"></p></div></div>
       </div>
     </section>
 
@@ -1193,7 +1332,10 @@ const SEED_TEMPLATE = {
   connectors: DEFAULT_CONNECTORS,
   insights: [{ id: "ins-demo", createdAt: "", context: SEED_INSIGHTS.context, count: 30, result: SEED_INSIGHTS, source: "示例" }]
 };
-function addDaysStr(date, n) { const d = new Date(date + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+// 空白起点：首次打开不预装示例，只有规则与连接器；示例数据（SEED_TEMPLATE）由「载入示例数据」按钮手动载入
+const EMPTY_TEMPLATE = { settings: SEED_TEMPLATE.settings, project: null, plan: null, kols: [], metricsTemplate: [], rules: DEFAULT_RULES, alerts: [], briefs: [], batches: [], connectors: DEFAULT_CONNECTORS, insights: [] };
+const SERVER_SEED = EMPTY_TEMPLATE;
+function addDaysStr(date, n) { if (!date) return ""; const d = new Date(date + "T00:00:00Z"); if (isNaN(d)) return ""; d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function materializeSeed(t, today) {
   const seed = JSON.parse(JSON.stringify(t));
   seed.metrics = (seed.metricsTemplate || []).map((r) => { const { dayOffset, ...rest } = r; return { date: addDaysStr(today, dayOffset), ...rest }; }); delete seed.metricsTemplate;
@@ -1294,8 +1436,17 @@ const repo = {
     if (IN_ARTIFACT || location.protocol === "file:") return false;
     try { const r = await fetch("/api/state", { headers: this.headers(false), signal: AbortSignal.timeout(5000) }); if (!r.ok) return false; const s = await r.json(); if (s.mode !== "server") return false; this.applyState(s); this.mode = "server"; return true; } catch (e) { return false; }
   },
-  loadLocal() { const saved = store.get("ace.db"); if (saved && Array.isArray(saved.kols) && saved.kols.length) { for (const c of COLS) if (saved[c] !== undefined) DB[c] = saved[c]; } else this.resetLocal(); this.mode = this.mode === "server" ? "server" : "local"; this.canWrite = true; this.now = todayStr(); },
-  resetLocal() { const seed = materializeSeed(SEED_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts; DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }]; store.set("ace.db", DB); },
+  loadLocal() { const saved = store.get("ace.db");
+    if (saved && Array.isArray(saved.kols)) { for (const c of COLS) if (saved[c] !== undefined) DB[c] = saved[c];
+      // 旧版本会预装示例：第一次升级到空白起点时，把示例标记的数据清掉，用户自己生成或导入的内容保留
+      if (!(saved.meta && saved.meta.v >= 2)) { stripDemo(DB); DB.meta = { ...(saved.meta || {}), v: 2 }; store.set("ace.db", DB); } else DB.meta = saved.meta; }
+    else this.resetLocal(false);
+    if (!Array.isArray(DB.rules) || !DB.rules.length) DB.rules = JSON.parse(JSON.stringify(DEFAULT_RULES)); if (!Array.isArray(DB.connectors) || !DB.connectors.length) DB.connectors = JSON.parse(JSON.stringify(DEFAULT_CONNECTORS));
+    this.mode = this.mode === "server" ? "server" : "local"; this.canWrite = true; this.now = todayStr(); },
+  // withDemo=true 载入示例数据；false 回到空白起点（规则、连接器、设置保留）
+  resetLocal(withDemo) { const seed = materializeSeed(withDemo ? SEED_TEMPLATE : EMPTY_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); DB.meta = { v: 2 };
+    if (withDemo) { const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts; DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }]; }
+    store.set("ace.db", DB); },
   async reload() { if (this.mode !== "server") return; const r = await fetch("/api/state", { headers: this.headers(false) }); if (r.ok) this.applyState(await r.json()); },
   async put(name) {
     if (this.mode === "server") {
@@ -1315,6 +1466,12 @@ const repo = {
     const j = await r.json().catch(() => ({})); if (!r.ok) throw { code: "server", message: j.error || j.body || ("HTTP " + r.status) }; return j;
   }
 };
+// 去掉带「示例」标记的数据（本地升级、清空示例共用）
+function stripDemo(db) { db.kols = arr(db.kols).filter((x) => x.source !== "示例数据"); db.metrics = arr(db.metrics).filter((r) => r.source !== "示例"); db.batches = arr(db.batches).filter((x) => x.source !== "示例"); db.insights = arr(db.insights).filter((x) => x.source !== "示例");
+  if (obj(db.plan).mode === "demo") { db.plan = null; if (obj(db.project).brand === (typeof DEMO_BRAND === "string" ? DEMO_BRAND : "泡研社")) db.project = null; }
+  db.briefs = arr(db.briefs).filter((b) => b.id !== "brief-demo" && b.id !== "brief-seed"); if (!db.metrics.length) db.alerts = []; }
+// 实时输出总线：任何一次 AI 流式输出都会广播到这里（开始页的「AI 正在写」用）
+const aiLive = { text: "", subs: new Set(), pub(text) { this.text = text; for (const f of this.subs) try { f(text); } catch (e) {} } };
 function requireWrite() { if (repo.canWrite) return true; openAuth(); toast("需要登录后才能修改"); return false; }
 async function save(name, okMsg) { try { await repo.put(name); if (okMsg) toast(okMsg); return true; } catch (e) { toast(e.message || "保存失败"); return false; } }
 
@@ -1364,13 +1521,14 @@ const ai = {
   ready() { return this.mode === "artifact" ? !!state.sample : this.mode === "server" || this.mode === "api"; },
   cfg() { if (this.mode === "server") return { kind: "openai", base: "/api/llm/v1", key: "", model: "server", headers: repo.headers(false) }; return apiConfigLocal(); },
   async text(prompt, o = {}) {
-    if (this.mode === "artifact") return state.sample(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: o.onText });
+    const onText = (p) => { aiLive.pub(p.text); if (o.onText) o.onText(p); };
+    if (this.mode === "artifact") return state.sample(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText });
     const cfg = this.cfg(); if (!cfg) throw { code: "not_configured", message: "no api config" };
-    let text = ""; await apiStream(cfg, prompt, o, (d) => { text += d; if (o.onText) o.onText({ text, delta: d }); });
+    let text = ""; await apiStream(cfg, prompt, o, (d) => { text += d; onText({ text, delta: d }); });
     if (!text.trim()) throw { code: "empty_completion", message: "empty" }; return { text };
   },
   async json(prompt, o = {}) {
-    if (this.mode === "artifact") return state.sample.json(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: o.onText });
+    if (this.mode === "artifact") return state.sample.json(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: (p) => { aiLive.pub(p.text); if (o.onText) o.onText(p); } });
     const { text } = await this.text(prompt, o); const v = parseJsonLoose(text); if (v === undefined) throw { code: "invalid_json", message: "no json", text }; return v;
   }
 };
@@ -1380,7 +1538,7 @@ function decideAiMode() {
   const cfg = apiConfigLocal(); if (cfg && cfg.model) { ai.mode = "api"; ai.label = ((API_PRESETS[cfg.provider] || {}).label || "自定义") + " · " + cfg.model; return; }
   ai.mode = "none"; ai.label = "";
 }
-const GEN_BUTTONS = ["#runBtn", "#fcRun", "#ksRun", "#klAiScore", "#klBrief", "#inRun"]; // 一键推荐在无 AI 时仍可按匹配分工作，不在此列
+const GEN_BUTTONS = ["#runBtn", "#fcRun", "#ksRun", "#klAiScore", "#klBrief", "#inRun", "#oneRun"]; // 一键推荐在无 AI 时仍可按匹配分工作，不在此列
 function refreshAvailability() {
   const s = $("#aiStatus"); const btns = GEN_BUTTONS.map((x) => $(x)).filter(Boolean);
   const setHints = (t) => { for (const id of ["#runHint", "#fcHint", "#ksHint", "#klHint", "#inHint"]) { const el = $(id); if (el) { el.className = "hint"; el.textContent = t; } } };
@@ -1388,11 +1546,12 @@ function refreshAvailability() {
   if (ai.ready()) { s.className = "status ok"; s.textContent = ""; s.append(h("i"), "AI 可用 · " + ai.label); btns.forEach((b) => { b.disabled = false; });
     setHints(ai.mode === "artifact" ? "首次会请求授权。" : ""); }
   else { s.className = "status warn"; btns.forEach((b) => { b.disabled = true; });
-    if (IN_ARTIFACT) { s.innerHTML = "<i></i>示例模式 · 无法调用 AI"; setHints("登录 Claude 后可生成，当前为示例。"); }
-    else if (repo.mode === "server") { s.innerHTML = "<i></i>示例模式 · 服务端未配置模型"; setHints("在「设置」填模型 Key 后可生成，当前为示例。"); }
-    else { s.innerHTML = "<i></i>示例模式 · 未接入 API"; setHints("在「设置」接入模型后可生成，当前为示例。"); } }
+    if (IN_ARTIFACT) { s.innerHTML = "<i></i>AI 不可用"; setHints("登录 Claude 后可生成。"); }
+    else if (repo.mode === "server") { s.innerHTML = "<i></i>AI 未配置"; setHints("在「设置」填模型 Key 后可生成。"); }
+    else { s.innerHTML = "<i></i>AI 未接入"; setHints("在「设置」接入模型后可生成。"); } }
   const mt = $("#modeText"); mt.textContent = IN_ARTIFACT ? "Claude 环境" : repo.mode === "server" ? (repo.canWrite ? "服务端 · 已登录" : repo.authRequired ? "服务端 · 只读访客" : "服务端") : "本地模式 · 数据存于浏览器";
   $("#apiBtn").hidden = IN_ARTIFACT;
+  if (typeof renderStartStatus === "function") try { renderStartStatus(); } catch (e) {}
 }
 
 // ===================== 登录 =====================
@@ -2103,65 +2262,131 @@ function initInsights() {
 }
 </script>
 <script>
-// ===================== 开始页：AI 状态 + 三步搬进来清单 + 清空示例 =====================
+// ===================== 开始页：Hero + 一键出全套（流水线实时播放）+ 把真实业务搬进来（折叠） =====================
 const DEMO_BRAND = "泡研社";
+const hasDemoData = () => DB.kols.some((x) => x.source === "示例数据") || DB.metrics.some((r) => r.source === "示例") || DB.batches.some((x) => x.source === "示例") || DB.insights.some((x) => x.source === "示例") || obj(DB.plan).mode === "demo";
 function startChecks() { const pj = obj(DB.project), pl = obj(DB.plan);
   return [
-    { done: (pl.mode && pl.mode !== "demo") || (pj.brand && pj.brand !== DEMO_BRAND), t: "粘一段你的 Brief，生成方案", s: "全案策划 → 粘贴 → 生成。客户有意见改「项目设定」。", tool: "plan" },
+    { done: (pl.mode && pl.mode !== "demo") || (pj.brand && pj.brand !== DEMO_BRAND), t: "粘一段你的 Brief，生成方案", s: "上面一键出全套，或到「全案策划」单独生成。客户有意见改「项目设定」。", tool: "plan" },
     { done: DB.kols.some((x) => x.source && x.source !== "示例数据"), t: "导入你的达人名单", s: "蒲公英 / 星图导出表拖进「数据接入」→ 导入 → 达人匹配一键选人。", tool: "import" },
     { done: DB.metrics.some((r) => r.source && r.source !== "示例"), t: "导入你的投放日报", s: "后台下载的日报表拖进「数据接入」选「投放日报」→ 投放监测自动告警。", tool: "import" },
     { done: !!obj(obj(DB.settings).webhook).url, t: "填群机器人，日报自动推", s: "投放监测 → 推送设置 → 粘飞书 / 企微 Webhook → 勾自动 → 保存。", tool: "monitor" }
   ]; }
-function renderStart() {
-  const ready = ai.ready(); const t = $("#startAiText"); const n = $("#startAi"); n.className = "notice" + (ready ? "" : " warn");
-  t.textContent = ""; t.append(h("b", null, ready ? "AI 已接入，直接用。" : "AI 还没接入。"), " ", ready ? (repo.mode === "server" ? `模型 ${ai.label.replace(/^服务端 · /, "")} 已由管理员配置，所有生成按钮可直接点，访客也能试用。` : `当前用 ${ai.label}。`) : (repo.mode === "server" ? (repo.canWrite ? "到「设置」填一个模型 Key 即可。" : "请管理员在「设置」填模型 Key。") : "到「设置」接入模型。"));
-  const checks = startChecks(); const done = checks.filter((x) => x.done).length;
-  $("#startIntro").textContent = done === checks.length ? "全部就绪，日常只需每天拖一份日报表。" : `三步把你的业务搬进来，已完成 ${done} / ${checks.length}。`;
-  $("#startSteps").replaceChildren(...checks.map((x, i) => h("div", { class: "chk" + (x.done ? " done" : "") }, h("i", null, x.done ? "✓" : String(i + 1)), h("div", null, h("div", { class: "t" }, x.t), h("div", { class: "s" }, x.s)), h("button", { type: "button", class: "btn sm" + (x.done ? " ghost" : " primary"), onclick: () => showTool(x.tool) }, x.done ? "再看看" : "去做"))));
-  const canClear = repo.mode === "local" || repo.canWrite; const hasDemo = DB.kols.some((x) => x.source === "示例数据") || DB.metrics.some((r) => r.source === "示例") || DB.batches.some((x) => x.source === "示例") || obj(DB.plan).mode === "demo";
-  $("#startClear").hidden = !hasDemo; $("#startClear").disabled = !canClear; $("#startClearHint").textContent = !hasDemo ? "示例数据已清空。" : canClear ? "" : "登录后可清空。";
+// Hero 上的 AI 状态胶囊（AI 可用性变化时由 refreshAvailability 调用）
+function renderStartStatus() {
+  const n = $("#startAi"); if (!n) return; const ready = ai.ready(); n.className = "hero-status " + (ready ? "ok" : "warn");
+  $("#startAiText").textContent = ready ? "AI 已接入 · " + ai.label.replace(/^服务端 · /, "") : IN_ARTIFACT && state.sample === undefined ? "正在检测 AI…" : repo.mode === "server" ? (repo.canWrite ? "AI 未配置 · 到「设置」填模型 Key" : "AI 未配置 · 请管理员在「设置」填 Key") : IN_ARTIFACT ? "AI 不可用 · 登录 Claude 后可生成" : "AI 未接入 · 到「设置」填接口";
+  const run = $("#oneRun"); if (run) run.classList.toggle("ready", ready && !one.running);
+  if (!one.running && !ready) $("#oneHint").textContent = hasDemoData() ? "" : "没有 AI 也能先看效果：展开下面「把真实业务搬进来」→ 载入示例数据。";
 }
+function renderStart() {
+  renderStartStatus();
+  const checks = startChecks(); const done = checks.filter((x) => x.done).length;
+  $("#startIntro").textContent = done === checks.length ? "全部就绪，日常只需每天拖一份日报表" : "导入达人名单、投放日报，接上群机器人";
+  const pill = $("#startMorePill"); pill.textContent = `${done} / ${checks.length}`; pill.className = "pill" + (done === checks.length ? " ok" : done ? " accent" : "");
+  $("#startSteps").replaceChildren(...checks.map((x, i) => h("div", { class: "chk" + (x.done ? " done" : "") }, h("i", null, x.done ? "✓" : String(i + 1)), h("div", null, h("div", { class: "t" }, x.t), h("div", { class: "s" }, x.s)), h("button", { type: "button", class: "btn sm" + (x.done ? " ghost" : ""), onclick: () => showTool(x.tool) }, x.done ? "再看看" : "去做"))));
+  const canClear = repo.mode === "local" || repo.canWrite; const demo = hasDemoData();
+  $("#startClear").hidden = !demo; $("#startClear").disabled = !canClear; $("#startDemo").hidden = demo; $("#startDemo").disabled = !canClear;
+  $("#startClearHint").textContent = canClear ? "" : "登录后可载入或清空示例。";
+}
+// ---- 示例数据：载入 / 清空；全部清空 ----
 let clearArmed = false;
 async function clearDemoData() {
   if (!(repo.mode === "local" || requireWrite())) return;
   if (!clearArmed) { clearArmed = true; $("#startClear").textContent = "再点一次确认清空"; setTimeout(() => { clearArmed = false; $("#startClear").textContent = "清空示例数据"; }, 4000); return; }
   clearArmed = false; $("#startClear").textContent = "清空示例数据";
-  DB.kols = DB.kols.filter((x) => x.source !== "示例数据"); DB.metrics = DB.metrics.filter((r) => r.source !== "示例"); DB.batches = DB.batches.filter((x) => x.source !== "示例"); DB.insights = DB.insights.filter((x) => x.source !== "示例");
-  if (obj(DB.plan).mode === "demo") { DB.plan = null; if (obj(DB.project).brand === DEMO_BRAND) DB.project = null; }
-  DB.alerts = []; DB.briefs = []; fc.batch = null; ins.current = null;
+  stripDemo(DB); fc.batch = null; ins.current = null; P.results = {}; P.brief = null;
   for (const c of ["kols", "metrics", "batches", "insights", "plan", "project", "alerts", "briefs"]) await save(c);
   renderAll(); toast("示例数据已清空");
 }
-// ---- 产出计数 ----
-function renderOutput() { const pl = obj(DB.plan); const chapters = pl.results ? Object.values(pl.results).filter(Boolean).length : 0; const drafts = DB.batches.reduce((a, b) => a + arr(b.items).length, 0); const reviewed = DB.batches.reduce((a, b) => a + arr(b.items).filter((x) => x.status === "已审校").length, 0); const evaluated = DB.kols.filter((k) => num(k.aiScore) != null).length;
-  $("#startOutput").replaceChildren(statTile("方案", chapters + " 章", pl.mode === "demo" ? "示例" : chapters ? "AI 生成" : "尚未生成"), statTile("稿件", String(drafts), `已审 ${reviewed}`), statTile("达人", `${DB.kols.length} 位`, `AI 评估 ${evaluated}`), statTile("日报", String(DB.briefs.length), `告警 ${DB.alerts.length}`), statTile("洞察", String(DB.insights.length), "份")); }
-
-// ---- 一键出全套 ----
-const ONE_STEPS = [["brief", "整理 Brief"], ["plan", "方案五章"], ["content", "内容矩阵"], ["kolS", "达人策略"], ["kol", "达人组合 + 合作 Brief"]];
-const one = { running: false, st: {} };
-function renderOneProgress() { $("#oneProgress").replaceChildren(...ONE_STEPS.map(([k, t], i) => { const x = one.st[k] || { s: "pending", detail: "" }; const cls = x.s === "done" ? "done" : x.s === "running" ? "running" : x.s === "fail" ? "fail" : x.s === "skip" ? "skip" : "";
-  return h("div", { class: "chk " + cls }, h("i", null, x.s === "done" ? "✓" : x.s === "fail" ? "×" : x.s === "running" ? "…" : String(i + 1)), h("div", null, h("div", { class: "t" }, t), h("div", { class: "s" }, x.detail || ""))); })); }
-function oneSet(k, s, detail) { one.st[k] = { s, detail: detail || "" }; renderOneProgress(); }
-async function runOneClick() {
-  if (!ai.ready()) { refreshAvailability(); return; } const text = $("#oneBrief").value.trim(); if (!text) { $("#oneHint").textContent = "先粘一段 Brief。"; return; }
-  one.running = true; one.st = {}; $("#oneCard").classList.add("running"); $("#oneRun").disabled = true; $("#oneProgress").hidden = false; $("#oneSummary").hidden = true; $("#oneHint").textContent = "生成中，可以切到别的页面看，这里会继续。"; const t0 = Date.now(); renderOneProgress();
-  const fast = $("#oneFast").checked; $("#fastMode").checked = fast; let brief = null, drafts = 0, plat = "小红书", picked = 0, briefOk = false, strategyOk = false;
-  try { oneSet("brief", "running"); $("#fQuick").value = text; await parseQuick(); brief = readForm(); oneSet("brief", "done", `${brief.brand} · ${brief.goal}`); }
-  catch (e) { oneSet("brief", "fail", errCopy(e)); one.running = false; $("#oneCard").classList.remove("running"); $("#oneRun").disabled = !ai.ready(); fatalCode(e); return; }
-  oneSet("plan", "running", "0/5"); const poll = setInterval(() => { const d = STAGES.filter((x) => stageK[x.id] === "done").length; one.st.plan.detail = `${d}/5 · ${STAGES.filter((x) => stageK[x.id] === "run").map((x) => x.t).join(" ")}`; renderOneProgress(); }, 600);
-  await runPipeline(brief); clearInterval(poll); const dn = STAGES.filter((x) => stageK[x.id] === "done").length; oneSet("plan", dn ? "done" : "fail", `${dn}/5 章`);
-  plat = arr(brief.platforms).find((p) => ["小红书", "抖音", "微信", "微博", "B站", "快手", "视频号"].includes(p)) || "小红书";
-  oneSet("content", "running", "0 条"); try { await runMatrix({ types: ["koc", "reply", "feed"], platforms: [plat], per: 5, context: projectContext(), must: obj(DB.project).keyMessages || "", avoid: "", tier: fast ? "quick" : "default", onItem: () => { drafts++; one.st.content.detail = `${drafts} 条 · ${plat}`; renderOneProgress(); } }); oneSet("content", drafts ? "done" : "fail", `${drafts} 条 · ${plat}（种草笔记 / 评论回复 / 信息流）`); } catch (e) { oneSet("content", "fail", errCopy(e)); }
-  oneSet("kolS", "running"); try { const kp = arr(brief.platforms).filter((p) => KOL_PLATFORMS.includes(p)).slice(0, 2); $("#ksBrand").value = projectContext(); await kolStrategyGen({ context: projectContext(), platforms: kp.length ? kp : ["小红书", "抖音"], budget: $("#ksBudget").value, goal: "新品种草 / 认知" }); strategyOk = true; oneSet("kolS", "done", "金字塔 · 赛道 · 筛选标准"); } catch (e) { oneSet("kolS", "fail", errCopy(e)); }
-  if (DB.kols.length) { oneSet("kol", "running", `评估 ${Math.min(30, DB.kols.length)} 位…`); try { picked = await kolOneClick(); if (picked) { one.st.kol.detail = `已选 ${picked} 位，写合作 Brief…`; renderOneProgress(); try { await kolBriefGen(); briefOk = true; } catch (e) {} } oneSet("kol", "done", `${picked} 位` + (briefOk ? " · 合作 Brief 已写" : "")); } catch (e) { oneSet("kol", "fail", errCopy(e)); } }
-  else oneSet("kol", "skip", "没有达人名单，导入后可一键选人");
-  one.running = false; $("#oneCard").classList.remove("running"); $("#oneRun").disabled = !ai.ready(); renderOutput(); const secs = Math.round((Date.now() - t0) / 1000); $("#oneHint").textContent = `完成，用时 ${secs} 秒。`;
-  const sum = $("#oneSummary"); sum.hidden = false; sum.className = "toolbar"; sum.replaceChildren(h("span", { class: "cnt" }, `从 1 段 Brief 产出：方案 ${dn} 章 · 稿件 ${drafts} 条${strategyOk ? " · 达人策略 1 份" : ""}${picked ? ` · 达人组合 ${picked} 位` : ""}${briefOk ? " · 合作 Brief 1 份" : ""}`),
-    h("div", { class: "right" }, h("button", { type: "button", class: "btn sm primary", onclick: () => showTool("plan") }, "看方案"), h("button", { type: "button", class: "btn sm", onclick: () => showTool("factory") }, "看稿件"), h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "strategy"); $("#kolLib").hidden = true; $("#kolStrategy").hidden = false; } }, "看达人策略"), picked ? h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "lib"); $("#kolLib").hidden = false; $("#kolStrategy").hidden = true; } }, "看组合") : null));
+async function loadDemoData() {
+  if (!(repo.mode === "local" || requireWrite())) return; $("#startDemo").disabled = true;
+  const seed = materializeSeed(SEED_TEMPLATE, repo.now || todayStr()); stripDemo(DB);
+  DB.project = seed.project; DB.plan = seed.plan; DB.kols = [...DB.kols, ...seed.kols]; DB.metrics = [...DB.metrics, ...seed.metrics].sort((a, b) => (a.date < b.date ? -1 : 1)); DB.batches = [...seed.batches, ...DB.batches]; DB.insights = [...seed.insights, ...DB.insights];
+  if (!arr(DB.rules).length) DB.rules = seed.rules;
+  const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts;
+  DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }, ...DB.briefs.filter((b) => b.id !== "brief-demo")];
+  fc.batch = null; ins.current = null;
+  for (const c of ["project", "plan", "kols", "metrics", "rules", "alerts", "briefs", "batches", "insights"]) await save(c);
+  renderAll(); toast("示例数据已载入，每个页面都有内容了");
 }
-function initStart() { TOOL_RENDER.start = () => { renderStart(); renderOutput(); if (!$("#oneBrief").value) $("#oneBrief").value = briefToQuick(obj(DB.plan).mode === "demo" || !obj(DB.project).brand ? SAMPLE_BRIEFS[1] : DB.project); }; $("#startDemo").addEventListener("click", () => showTool("plan")); $("#startClear").addEventListener("click", clearDemoData); $("#oneRun").addEventListener("click", runOneClick); applyTheme(store.get("ace.theme") || ""); $("#themeBtn").addEventListener("click", () => applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark")); }
-</script>
-<script>
+async function resetAllData() {
+  if (repo.mode === "local") { const keep = { settings: DB.settings, rules: DB.rules, connectors: DB.connectors }; repo.resetLocal(false); Object.assign(DB, keep); store.set("ace.db", DB); }
+  else { DB.project = null; DB.plan = null; DB.kols = []; DB.metrics = []; DB.alerts = []; DB.briefs = []; DB.batches = []; DB.insights = []; for (const c of ["project", "plan", "kols", "metrics", "alerts", "briefs", "batches", "insights"]) await save(c); }
+  fc.batch = null; ins.current = null; P.results = {}; P.brief = null; renderAll(); toast("已清空，回到空白起点");
+}
+// ---- 产出计数（有内容才显示） ----
+function renderOutput() { const pl = obj(DB.plan); const chapters = pl.results ? Object.values(pl.results).filter(Boolean).length : 0; const drafts = DB.batches.reduce((a, b) => a + arr(b.items).length, 0); const reviewed = DB.batches.reduce((a, b) => a + arr(b.items).filter((x) => x.status === "已审校").length, 0); const evaluated = DB.kols.filter((k) => num(k.aiScore) != null).length;
+  const el = $("#startOutput"); const any = (chapters || drafts || DB.kols.length || DB.briefs.length || DB.insights.length) && $("#oneSummary").hidden; el.hidden = !any; if (!any) { el.replaceChildren(); return; }
+  el.replaceChildren(statTile("方案", chapters + " 章", pl.mode === "demo" ? "示例" : chapters ? "AI 生成" : "尚未生成"), statTile("稿件", String(drafts), `已审 ${reviewed}`), statTile("达人", `${DB.kols.length} 位`, `AI 评估 ${evaluated}`), statTile("日报", String(DB.briefs.length), `告警 ${DB.alerts.length}`), statTile("洞察", String(DB.insights.length), "份")); }
+
+// ---- 一键出全套：流水线 ----
+const ONE_ICON = { brief: "M7 3h7l5 5v13H7z|M14 3v5h5|M10 13h5|M10 17h5", plan: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z|M12 3v3M12 18v3M3 12h3M18 12h3", content: "M3 4h18v6H3z|M3 14h8v6H3z|M13 14h8v6h-8z", kolS: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z", kol: "M9 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z|M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6|M17 11a3 3 0 1 0 0-6|M21 20c0-2.8-1.9-5.1-4.5-5.8" };
+const ONE_STEPS = [["brief", "整理 Brief"], ["plan", "方案五章"], ["content", "内容矩阵"], ["kolS", "达人策略"], ["kol", "达人组合"]];
+const one = { running: false, st: {}, doneOnce: false, sampleIdx: 0, typeRaf: 0, nodes: {} };
+function icon(paths) { const s = sv("svg", { viewBox: "0 0 24 24" }); for (const d of paths.split("|")) s.append(sv("path", { d })); return s; }
+function buildPipe() { one.nodes = {}; $("#onePipe").replaceChildren(...ONE_STEPS.map(([k, t]) => { const n = h("div", { class: "pnode" }, h("div", { class: "ring" }, icon(ONE_ICON[k]), h("span", { class: "chk" }, "✓"), h("span", { class: "x" }, "×")), h("div", { class: "t" }, t), h("div", { class: "s" }, "")); one.nodes[k] = n; return n; })); }
+function oneSet(k, s, detail) { one.st[k] = { s, detail: detail || "" }; const n = one.nodes[k]; if (!n) return; n.className = "pnode " + (s === "pending" ? "" : s) + (s === "done" || s === "fail" || s === "skip" ? " lit" : ""); $(".s", n).textContent = detail || ""; $(".s", n).title = detail || "";
+  if (s === "running") { $("#oneLive b").textContent = ONE_STEPS.find((x) => x[0] === k)[1]; } }
+function liveText(t) { const box = $("#oneLiveText"); box.replaceChildren(h("span", null, t)); requestAnimationFrame(() => { const sp = box.firstElementChild; $("#oneLive").classList.toggle("fade", !!sp && sp.scrollWidth > box.clientWidth + 1); }); }
+function liveSub(text) { if (!one.running) return; const t = String(text || "").replace(/\s+/g, " ").replace(/[{}\[\]"`#*\\]/g, "").replace(/\b[a-z_]+:\s*/g, "").trim(); liveText(t.slice(-200)); }
+function feedPush(it) { const f = $("#oneFeed"); f.hidden = false; f.prepend(h("div", { class: "fi" }, h("div", { class: "fh" }, it.platform ? h("span", { class: "plat" }, str(it.platform)) : null, h("span", null, [str(it.typeLabel), str(it.persona)].filter(Boolean).join(" · "))), h("h5", null, str(it.title) || str(it.body).slice(0, 24)), h("p", null, str(it.body)))); while (f.children.length > 6) f.lastElementChild.remove(); }
+function oneButton(label, busy) { const b = $("#oneRun"); $("span", b).textContent = label; b.classList.toggle("busy", !!busy); }
+async function runOneClick() {
+  if (!ai.ready()) { refreshAvailability(); return; } finishTyping(); const text = $("#oneBrief").value.trim(); if (!text) { $("#oneHint").textContent = "先粘一段 Brief。"; $("#oneBrief").focus(); return; }
+  one.running = true; one.st = {}; const run = $("#oneRun"); run.disabled = true; run.classList.remove("ready"); oneButton("生成中…", true);
+  $("#oneCard").classList.add("running"); buildPipe(); $("#onePipe").hidden = false; const live = $("#oneLive"); live.hidden = false; live.classList.remove("idle"); $("#oneLive b").textContent = "AI"; liveText("连接模型…"); $("#oneFeed").hidden = true; $("#oneFeed").replaceChildren(); $("#oneSummary").hidden = true; $("#oneHint").textContent = "生成中，切到别的页面也会继续。";
+  aiLive.subs.add(liveSub); const t0 = Date.now(); const fast = $("#oneFast").checked; $("#fastMode").checked = fast;
+  let brief = null, drafts = 0, plat = "小红书", picked = 0, briefOk = false, strategyOk = false, dn = 0;
+  const finish = () => { aiLive.subs.delete(liveSub); one.running = false; one.doneOnce = true; $("#oneCard").classList.remove("running"); run.disabled = !ai.ready(); run.classList.toggle("ready", ai.ready()); live.classList.add("idle"); renderOutput(); };
+  try { oneSet("brief", "running"); $("#fQuick").value = text; await parseQuick(); brief = readForm(); if (!brief.brand) throw { code: "invalid_json", message: "brief" }; oneSet("brief", "done", `${brief.brand} · ${brief.goal}`); }
+  catch (e) { oneSet("brief", "fail", errCopy(e)); finish(); oneButton("重试", false); liveText(errCopy(e)); $("#oneHint").textContent = errCopy(e); fatalCode(e); return; }
+  oneSet("plan", "running", "0/5"); const poll = setInterval(() => { const d = STAGES.filter((x) => stageK[x.id] === "done").length; const run_ = STAGES.filter((x) => stageK[x.id] === "run").map((x) => x.t).join(" "); oneSet("plan", "running", `${d}/5${run_ ? " · " + run_ : ""}`); }, 500);
+  await runPipeline(brief); clearInterval(poll); dn = STAGES.filter((x) => stageK[x.id] === "done").length; oneSet("plan", dn ? "done" : "fail", `${dn}/5 章`);
+  plat = arr(brief.platforms).find((p) => ["小红书", "抖音", "微信", "微博", "B站", "快手", "视频号"].includes(p)) || "小红书";
+  oneSet("content", "running", "0 条"); try { await runMatrix({ types: ["koc", "reply", "feed"], platforms: [plat], per: 5, context: projectContext(), must: obj(DB.project).keyMessages || "", avoid: "", tier: fast ? "quick" : "default", onItem: (it) => { drafts++; oneSet("content", "running", `${drafts} 条 · ${plat}`); feedPush(it); } }); oneSet("content", drafts ? "done" : "fail", `${drafts} 条 · ${plat}`); } catch (e) { oneSet("content", "fail", errCopy(e)); }
+  oneSet("kolS", "running"); try { const kp = arr(brief.platforms).filter((p) => KOL_PLATFORMS.includes(p)).slice(0, 2); $("#ksBrand").value = projectContext(); await kolStrategyGen({ context: projectContext(), platforms: kp.length ? kp : ["小红书", "抖音"], budget: $("#ksBudget").value, goal: "新品种草 / 认知" }); strategyOk = true; oneSet("kolS", "done", "金字塔 · 赛道 · 标准"); } catch (e) { oneSet("kolS", "fail", errCopy(e)); }
+  if (DB.kols.length) { oneSet("kol", "running", `评估 ${Math.min(30, DB.kols.length)} 位…`); try { picked = await kolOneClick(); if (picked) { oneSet("kol", "running", `已选 ${picked} 位 · 写合作 Brief…`); try { await kolBriefGen(); briefOk = true; } catch (e) {} } oneSet("kol", "done", `${picked} 位` + (briefOk ? " · Brief 已写" : "")); } catch (e) { oneSet("kol", "fail", errCopy(e)); } }
+  else oneSet("kol", "skip", "没有达人名单");
+  finish(); const secs = Math.round((Date.now() - t0) / 1000); oneButton("再出一套", false); $("#oneHint").textContent = ""; $("#oneLive b").textContent = "完成"; liveText(`${secs} 秒 · 方案 ${dn} 章 · 稿件 ${drafts} 条${strategyOk ? " · 达人策略 1 份" : ""}${picked ? ` · 达人组合 ${picked} 位` : ""}${briefOk ? " · 合作 Brief 1 份" : ""}`);
+  const sum = $("#oneSummary"); sum.hidden = false; sum.replaceChildren(
+    h("div", { class: "stats" }, statTile("方案", `${dn} 章`, dn === 5 ? "五章齐全" : dn ? "部分完成" : "未生成"), statTile("稿件", String(drafts), `${plat} · 种草 / 回复 / 信息流`), statTile("达人策略", strategyOk ? "1 份" : "0", strategyOk ? "金字塔 · 筛选标准" : "未生成"), picked ? statTile("达人组合", `${picked} 位`, briefOk ? "合作 Brief 已写" : "按预算勾选") : statTile("达人组合", "—", DB.kols.length ? "未选出" : "导入名单后可选人"), statTile("用时", `${secs} 秒`, fast ? "快速模式" : "深度模式")),
+    h("div", { class: "acts" }, h("span", { class: "cnt" }, "已保存，到各页细看、修改、导出。"), h("button", { type: "button", class: "btn sm primary", onclick: () => showTool("plan") }, "看方案"), h("button", { type: "button", class: "btn sm", onclick: () => showTool("factory") }, "看稿件"), h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "strategy"); $("#kolLib").hidden = true; $("#kolStrategy").hidden = false; } }, "看达人策略"), picked ? h("button", { type: "button", class: "btn sm", onclick: () => { showTool("kol"); segSet($("#kolMode"), "lib"); $("#kolLib").hidden = false; $("#kolStrategy").hidden = true; } }, "看组合") : null));
+  renderOutput();
+}
+// ---- Brief 预填：打字机效果 ----
+function typeInto(el, text) { cancelAnimationFrame(one.typeRaf); one.typing = null; if (NO_MOTION) { el.value = text; return; } let i = 0; one.typing = { el, text }; const step = () => { if (!one.typing) return; i = Math.min(text.length, i + Math.max(2, Math.round(text.length / 40))); el.value = text.slice(0, i); if (i < text.length) one.typeRaf = requestAnimationFrame(step); else one.typing = null; }; one.typeRaf = requestAnimationFrame(step); }
+// 打字还没打完就点按钮 / 点进输入框：立刻补全
+function finishTyping() { if (!one.typing) return; cancelAnimationFrame(one.typeRaf); one.typing.el.value = one.typing.text; one.typing = null; }
+function defaultBrief() { const pj = obj(DB.project); return pj.brand && obj(DB.plan).mode !== "demo" ? briefToQuick(pj) : briefToQuick(SAMPLE_BRIEFS[one.sampleIdx % SAMPLE_BRIEFS.length]); }
+function initStart() {
+  TOOL_RENDER.start = () => { renderStart(); renderOutput(); if (!$("#oneBrief").value && !one.running) typeInto($("#oneBrief"), defaultBrief()); fxStart(); };
+  $("#startDemo").addEventListener("click", loadDemoData); $("#startClear").addEventListener("click", clearDemoData); $("#oneRun").addEventListener("click", runOneClick);
+  $("#oneSwap").addEventListener("click", () => { if (one.running) return; one.sampleIdx = (one.sampleIdx + 1) % SAMPLE_BRIEFS.length; typeInto($("#oneBrief"), briefToQuick(SAMPLE_BRIEFS[one.sampleIdx])); oneButton("一键出全套", false); });
+  $("#oneBrief").addEventListener("focus", finishTyping); $("#oneBrief").addEventListener("input", () => { if (!one.running && one.doneOnce) oneButton("一键出全套", false); });
+  applyTheme(store.get("ace.theme") || ""); $("#themeBtn").addEventListener("click", () => applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+}
+
+// ===================== 视觉特效：粒子星网（Hero 背景）、卡片光斑、数字卡 3D 倾斜 =====================
+const fx = { on: false, raf: 0, pts: [], dpr: 1, mouse: { x: -1e4, y: -1e4 } };
+function fxColor() { const v = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim(); const m = v.match(/^#([0-9a-f]{6})$/i); if (!m) return [46, 98, 255]; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function fxResize(force) { const c = $("#fxCanvas"); if (!c) return; const r = c.getBoundingClientRect(); if (!r.width || !r.height) return; const dpr = Math.min(2, window.devicePixelRatio || 1); const W = Math.floor(r.width * dpr), H = Math.floor(r.height * dpr); if (!force && c.width === W && c.height === H) return; c.width = W; c.height = H; fx.dpr = dpr;
+  const n = Math.min(100, Math.max(36, Math.round(r.width * r.height / 11000))); fx.pts = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .28 * dpr, vy: (Math.random() - .5) * .28 * dpr, r: (Math.random() * 1.3 + .7) * dpr })); }
+function fxStep() { const c = $("#fxCanvas"); if (!c || document.hidden || $("#tool-start").hidden) { fx.on = false; return; } fxResize(false); const ctx = c.getContext("2d"); const W = c.width, H = c.height, dpr = fx.dpr; ctx.clearRect(0, 0, W, H); const [r, g, b] = fxColor(); const link = 130 * dpr, rad = 130 * dpr; const pts = fx.pts;
+  for (const p of pts) { p.x += p.vx; p.y += p.vy; const dx = p.x - fx.mouse.x, dy = p.y - fx.mouse.y; const d2 = dx * dx + dy * dy; if (d2 < rad * rad) { const d = Math.sqrt(d2) || 1; const f = (1 - d / rad) * .9; p.x += dx / d * f; p.y += dy / d * f; } if (p.x < -10) p.x = W + 10; else if (p.x > W + 10) p.x = -10; if (p.y < -10) p.y = H + 10; else if (p.y > H + 10) p.y = -10; }
+  ctx.lineWidth = dpr; for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) { const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y; const d2 = dx * dx + dy * dy; if (d2 > link * link) continue; ctx.strokeStyle = `rgba(${r},${g},${b},${((1 - Math.sqrt(d2) / link) * .38).toFixed(3)})`; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke(); }
+  ctx.fillStyle = `rgba(${r},${g},${b},.8)`; for (const p of pts) { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
+  fx.raf = requestAnimationFrame(fxStep); }
+function fxStart() { if (NO_MOTION || fx.on || !$("#fxCanvas") || $("#tool-start").hidden) return; fx.on = true; fxResize(false); fx.raf = requestAnimationFrame(fxStep); }
+function initFx() {
+  const wrap = $(".hero-wrap"); if (wrap) { wrap.addEventListener("pointermove", (e) => { const c = $("#fxCanvas"); const r = c.getBoundingClientRect(); fx.mouse.x = (e.clientX - r.left) * fx.dpr; fx.mouse.y = (e.clientY - r.top) * fx.dpr; }, { passive: true }); wrap.addEventListener("pointerleave", () => { fx.mouse.x = fx.mouse.y = -1e4; }); }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) fxStart(); }); fxStart();
+  // 光斑跟随（.card / .stat）与数字卡 3D 倾斜
+  document.addEventListener("pointermove", (e) => { const t = e.target && e.target.closest ? e.target.closest(".stat, .card") : null; if (!t) return; const r = t.getBoundingClientRect(); if (!r.width) return; const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height; t.style.setProperty("--mx", (x * 100).toFixed(1) + "%"); t.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+    if (!NO_MOTION && t.classList.contains("stat")) t.style.transform = `perspective(700px) rotateX(${((.5 - y) * 7).toFixed(2)}deg) rotateY(${((x - .5) * 7).toFixed(2)}deg) translateY(-2px)`; }, { passive: true });
+  document.addEventListener("pointerout", (e) => { const t = e.target && e.target.closest ? e.target.closest(".stat") : null; if (t && !(e.relatedTarget && t.contains(e.relatedTarget))) t.style.transform = ""; }, { passive: true });
+}
+</script><script>
 // ===================== 设置 =====================
 const APP_VERSION = "3.1";
 function kv(pairs) { return pairs.flatMap(([k, v]) => [h("dt", null, k), h("dd", null, v)]); }
@@ -2175,7 +2400,7 @@ function renderSettings() {
   else $("#stLlmHint").textContent = IN_ARTIFACT ? "" : "没有后端时，模型接口保存在你的浏览器里。";
   const p = obj(DB.project); $("#stProject").replaceChildren(...(p.brand ? kv([["品牌", p.brand], ["行业 / 目标", [p.industry, p.goal].filter(Boolean).join(" · ")], ["产品", p.product], ["人群", p.audience], ["预算 / 周期", [p.budget, p.period].filter(Boolean).join(" · ")], ["平台", arr(p.platforms).join("、")]]) : [h("dd", null, "还没有项目，去「全案策划」生成一次即可")]));
   $("#stData").replaceChildren(...kv([["达人库", DB.kols.length + " 位"], ["投放数据", DB.metrics.length + " 行"], ["内容批次", DB.batches.length + " 个"], ["告警 / 日报", DB.alerts.length + " / " + DB.briefs.length], ["洞察报告", DB.insights.length + " 份"]]));
-  $("#stReset").hidden = srv; $("#stDataHint").textContent = srv ? "服务端数据由管理员维护；重置请在部署目录删除 data/data.json 后重启。" : "重置会清空当前浏览器里的全部数据，恢复为示例。";
+  $("#stReset").hidden = srv && !repo.canWrite; $("#stDataHint").textContent = srv ? (repo.canWrite ? "清空会删除服务端的方案、稿件、达人、投放数据与日报，所有人同步；规则、连接器、模型设置保留。" : "登录后可清空。") : "清空会删除当前浏览器里的方案、稿件、达人、投放数据与日报；规则与设置保留。";
 }
 function initSettings() {
   segInit($("#stLlmKind"));
@@ -2184,7 +2409,7 @@ function initSettings() {
   $("#stGoPlan").addEventListener("click", () => showTool("plan"));
   $("#stExportKols").addEventListener("click", () => { if (repo.mode === "server") window.open("/api/export/kols.csv", "_blank"); else downloadFile("达人库.csv", toCsv(DB.kols, ["name", "platform", "category", "city", "followers", "avgViews", "avgEngagements", "engagementRate", "quote", "fitScore", "aiScore", "aiVerdict", "status", "nextFollowUp", "audience", "notes"], FIELD_LABELS)); });
   $("#stExportMetrics").addEventListener("click", () => { if (repo.mode === "server") window.open("/api/export/metrics.csv", "_blank"); else downloadFile("投放数据.csv", toCsv(DB.metrics, ["date", "platform", "campaign", "spend", "impressions", "clicks", "conversions", "engagements", "negatives"], FIELD_LABELS)); });
-  let armed = false; $("#stReset").addEventListener("click", () => { if (!armed) { armed = true; $("#stReset").textContent = "再点一次确认重置"; setTimeout(() => { armed = false; $("#stReset").textContent = "重置为示例数据"; }, 4000); return; } armed = false; $("#stReset").textContent = "重置为示例数据"; repo.resetLocal(); ins.current = null; fc.batch = null; renderAll(); toast("已重置为示例数据"); });
+  let armed = false; $("#stReset").addEventListener("click", async () => { if (!(repo.mode === "local" || requireWrite())) return; if (!armed) { armed = true; $("#stReset").textContent = "再点一次确认清空"; setTimeout(() => { armed = false; $("#stReset").textContent = "清空全部数据"; }, 4000); return; } armed = false; $("#stReset").textContent = "清空全部数据"; await resetAllData(); });
   TOOL_RENDER.settings = renderSettings;
 }
 
@@ -2199,15 +2424,16 @@ async function boot() {
   else { decideAiMode(); $("#dlMdBtn").hidden = false; }
   refreshAuthUi(); refreshAvailability(); renderAll();
   const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "start");
-  initOnboarding(); onboardingStart();
+  initOnboarding(); onboardingStart(); initFx();
 }
 boot();
 </script>
 <script>
 // ===================== 一进来就开始的流程引导（五步，在真实界面上高亮讲解）+ 初始化向导 =====================
 const TOUR_STEPS = [
-  { center: true, stage: "", title: "3 件事：粘 Brief、点按钮、拖表格", text: "示例数据已填好，高亮的按钮可以直接点。", cta: "开始" },
-  { tool: "plan", el: "#fQuick", stage: "1 · 定项目", title: "粘 Brief，点「生成方案」", text: "要改方案，改下面的「项目设定」。" },
+  { center: true, stage: "", title: "粘 Brief，点一下，全套出来", text: "Brief 已经填好，先看一键出全套的效果；要接真实业务，再往下走。", cta: "开始" },
+  { tool: "start", el: "#oneRun", stage: "0 · 一键", title: "点这里，方案、稿件、达人策略一起出", text: "生成过程会在卡片里实时播放。" },
+  { tool: "plan", el: "#fQuick", stage: "1 · 定项目", title: "单独出方案在这里", text: "要改方案，改下面的「项目设定」。" },
   { tool: "factory", el: "#fcRun", stage: "2 · 出内容", title: "点一下，出几十条稿", text: "审过的才导出。" },
   { tool: "import", el: "#imDrop", stage: "3 · 接数据", title: "把平台导出的表拖这里", text: "达人名单、投放日报都从这里进。" },
   { tool: "kol", el: "#klOneClick", stage: "4 · 选达人", title: "一键选人", text: "按预算自动勾选，再生成合作 Brief。" },

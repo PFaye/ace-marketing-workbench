@@ -12,7 +12,7 @@ function renderSettings() {
   else $("#stLlmHint").textContent = IN_ARTIFACT ? "" : "没有后端时，模型接口保存在你的浏览器里。";
   const p = obj(DB.project); $("#stProject").replaceChildren(...(p.brand ? kv([["品牌", p.brand], ["行业 / 目标", [p.industry, p.goal].filter(Boolean).join(" · ")], ["产品", p.product], ["人群", p.audience], ["预算 / 周期", [p.budget, p.period].filter(Boolean).join(" · ")], ["平台", arr(p.platforms).join("、")]]) : [h("dd", null, "还没有项目，去「全案策划」生成一次即可")]));
   $("#stData").replaceChildren(...kv([["达人库", DB.kols.length + " 位"], ["投放数据", DB.metrics.length + " 行"], ["内容批次", DB.batches.length + " 个"], ["告警 / 日报", DB.alerts.length + " / " + DB.briefs.length], ["洞察报告", DB.insights.length + " 份"]]));
-  $("#stReset").hidden = srv; $("#stDataHint").textContent = srv ? "服务端数据由管理员维护；重置请在部署目录删除 data/data.json 后重启。" : "重置会清空当前浏览器里的全部数据，恢复为示例。";
+  $("#stReset").hidden = srv && !repo.canWrite; $("#stDataHint").textContent = srv ? (repo.canWrite ? "清空会删除服务端的方案、稿件、达人、投放数据与日报，所有人同步；规则、连接器、模型设置保留。" : "登录后可清空。") : "清空会删除当前浏览器里的方案、稿件、达人、投放数据与日报；规则与设置保留。";
 }
 function initSettings() {
   segInit($("#stLlmKind"));
@@ -21,7 +21,7 @@ function initSettings() {
   $("#stGoPlan").addEventListener("click", () => showTool("plan"));
   $("#stExportKols").addEventListener("click", () => { if (repo.mode === "server") window.open("/api/export/kols.csv", "_blank"); else downloadFile("达人库.csv", toCsv(DB.kols, ["name", "platform", "category", "city", "followers", "avgViews", "avgEngagements", "engagementRate", "quote", "fitScore", "aiScore", "aiVerdict", "status", "nextFollowUp", "audience", "notes"], FIELD_LABELS)); });
   $("#stExportMetrics").addEventListener("click", () => { if (repo.mode === "server") window.open("/api/export/metrics.csv", "_blank"); else downloadFile("投放数据.csv", toCsv(DB.metrics, ["date", "platform", "campaign", "spend", "impressions", "clicks", "conversions", "engagements", "negatives"], FIELD_LABELS)); });
-  let armed = false; $("#stReset").addEventListener("click", () => { if (!armed) { armed = true; $("#stReset").textContent = "再点一次确认重置"; setTimeout(() => { armed = false; $("#stReset").textContent = "重置为示例数据"; }, 4000); return; } armed = false; $("#stReset").textContent = "重置为示例数据"; repo.resetLocal(); ins.current = null; fc.batch = null; renderAll(); toast("已重置为示例数据"); });
+  let armed = false; $("#stReset").addEventListener("click", async () => { if (!(repo.mode === "local" || requireWrite())) return; if (!armed) { armed = true; $("#stReset").textContent = "再点一次确认清空"; setTimeout(() => { armed = false; $("#stReset").textContent = "清空全部数据"; }, 4000); return; } armed = false; $("#stReset").textContent = "清空全部数据"; await resetAllData(); });
   TOOL_RENDER.settings = renderSettings;
 }
 
@@ -36,7 +36,7 @@ async function boot() {
   else { decideAiMode(); $("#dlMdBtn").hidden = false; }
   refreshAuthUi(); refreshAvailability(); renderAll();
   const hash = (location.hash || "").replace("#", ""); showTool(TOOLS.includes(hash) ? hash : "start");
-  initOnboarding(); onboardingStart();
+  initOnboarding(); onboardingStart(); initFx();
 }
 boot();
 </script>

@@ -18,7 +18,7 @@ const TZ = process.env.TZ_NAME || "Asia/Shanghai";
 const PUBLIC_GENERATE = (process.env.PUBLIC_GENERATE || "true") !== "false";
 const PUBLIC_DAILY_CAP = Number(process.env.PUBLIC_DAILY_CAP || 300);
 
-const { materialize } = require("./lib/seed");
+const { materialize, stripDemo } = require("./lib/seed");
 let seed = {}; try { seed = materialize(JSON.parse(fs.readFileSync(path.join(__dirname, "seed.json"), "utf8")), monitor.todayIn(TZ)); } catch (e) { console.warn("seed.json 未找到或无效，使用空数据启动"); }
 const store = new Store(path.join(DATA_DIR, "data.json"), seed);
 const db = store.load();
@@ -29,6 +29,8 @@ if (db.meta && db.meta.seededAt && !db.meta.seedEvaluated) {
   db.meta.seedEvaluated = true; store.flush();
 }
 
+// v3.2 起不再预装示例：旧部署的数据文件第一次用新版本启动时，把示例标记的数据清掉（真实数据保留），之后示例只能在页面上手动载入
+if (!db.meta || !db.meta.v2) { stripDemo(db); db.meta = { ...(db.meta || {}), v2: true }; store.flush(); console.log("已升级到空白起点：示例数据已清除（真实数据保留）"); }
 const COLLECTIONS = ["kols", "metrics", "rules", "alerts", "briefs", "batches", "connectors", "plan", "project", "insights"];
 const SECRET_SETTINGS = ["llmKey"];
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".csv": "text/csv; charset=utf-8", ".md": "text/markdown; charset=utf-8", ".txt": "text/plain; charset=utf-8" };

@@ -89,8 +89,17 @@ const repo = {
     if (IN_ARTIFACT || location.protocol === "file:") return false;
     try { const r = await fetch("/api/state", { headers: this.headers(false), signal: AbortSignal.timeout(5000) }); if (!r.ok) return false; const s = await r.json(); if (s.mode !== "server") return false; this.applyState(s); this.mode = "server"; return true; } catch (e) { return false; }
   },
-  loadLocal() { const saved = store.get("ace.db"); if (saved && Array.isArray(saved.kols) && saved.kols.length) { for (const c of COLS) if (saved[c] !== undefined) DB[c] = saved[c]; } else this.resetLocal(); this.mode = this.mode === "server" ? "server" : "local"; this.canWrite = true; this.now = todayStr(); },
-  resetLocal() { const seed = materializeSeed(SEED_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts; DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }]; store.set("ace.db", DB); },
+  loadLocal() { const saved = store.get("ace.db");
+    if (saved && Array.isArray(saved.kols)) { for (const c of COLS) if (saved[c] !== undefined) DB[c] = saved[c];
+      // 旧版本会预装示例：第一次升级到空白起点时，把示例标记的数据清掉，用户自己生成或导入的内容保留
+      if (!(saved.meta && saved.meta.v >= 2)) { stripDemo(DB); DB.meta = { ...(saved.meta || {}), v: 2 }; store.set("ace.db", DB); } else DB.meta = saved.meta; }
+    else this.resetLocal(false);
+    if (!Array.isArray(DB.rules) || !DB.rules.length) DB.rules = JSON.parse(JSON.stringify(DEFAULT_RULES)); if (!Array.isArray(DB.connectors) || !DB.connectors.length) DB.connectors = JSON.parse(JSON.stringify(DEFAULT_CONNECTORS));
+    this.mode = this.mode === "server" ? "server" : "local"; this.canWrite = true; this.now = todayStr(); },
+  // withDemo=true 载入示例数据；false 回到空白起点（规则、连接器、设置保留）
+  resetLocal(withDemo) { const seed = materializeSeed(withDemo ? SEED_TEMPLATE : EMPTY_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); DB.meta = { v: 2 };
+    if (withDemo) { const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts; DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }]; }
+    store.set("ace.db", DB); },
   async reload() { if (this.mode !== "server") return; const r = await fetch("/api/state", { headers: this.headers(false) }); if (r.ok) this.applyState(await r.json()); },
   async put(name) {
     if (this.mode === "server") {
@@ -110,6 +119,12 @@ const repo = {
     const j = await r.json().catch(() => ({})); if (!r.ok) throw { code: "server", message: j.error || j.body || ("HTTP " + r.status) }; return j;
   }
 };
+// 去掉带「示例」标记的数据（本地升级、清空示例共用）
+function stripDemo(db) { db.kols = arr(db.kols).filter((x) => x.source !== "示例数据"); db.metrics = arr(db.metrics).filter((r) => r.source !== "示例"); db.batches = arr(db.batches).filter((x) => x.source !== "示例"); db.insights = arr(db.insights).filter((x) => x.source !== "示例");
+  if (obj(db.plan).mode === "demo") { db.plan = null; if (obj(db.project).brand === (typeof DEMO_BRAND === "string" ? DEMO_BRAND : "泡研社")) db.project = null; }
+  db.briefs = arr(db.briefs).filter((b) => b.id !== "brief-demo" && b.id !== "brief-seed"); if (!db.metrics.length) db.alerts = []; }
+// 实时输出总线：任何一次 AI 流式输出都会广播到这里（开始页的「AI 正在写」用）
+const aiLive = { text: "", subs: new Set(), pub(text) { this.text = text; for (const f of this.subs) try { f(text); } catch (e) {} } };
 function requireWrite() { if (repo.canWrite) return true; openAuth(); toast("需要登录后才能修改"); return false; }
 async function save(name, okMsg) { try { await repo.put(name); if (okMsg) toast(okMsg); return true; } catch (e) { toast(e.message || "保存失败"); return false; } }
 
@@ -159,13 +174,14 @@ const ai = {
   ready() { return this.mode === "artifact" ? !!state.sample : this.mode === "server" || this.mode === "api"; },
   cfg() { if (this.mode === "server") return { kind: "openai", base: "/api/llm/v1", key: "", model: "server", headers: repo.headers(false) }; return apiConfigLocal(); },
   async text(prompt, o = {}) {
-    if (this.mode === "artifact") return state.sample(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: o.onText });
+    const onText = (p) => { aiLive.pub(p.text); if (o.onText) o.onText(p); };
+    if (this.mode === "artifact") return state.sample(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText });
     const cfg = this.cfg(); if (!cfg) throw { code: "not_configured", message: "no api config" };
-    let text = ""; await apiStream(cfg, prompt, o, (d) => { text += d; if (o.onText) o.onText({ text, delta: d }); });
+    let text = ""; await apiStream(cfg, prompt, o, (d) => { text += d; onText({ text, delta: d }); });
     if (!text.trim()) throw { code: "empty_completion", message: "empty" }; return { text };
   },
   async json(prompt, o = {}) {
-    if (this.mode === "artifact") return state.sample.json(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: o.onText });
+    if (this.mode === "artifact") return state.sample.json(prompt, { modelTier: o.tier, signal: o.signal, cache: o.cache, onText: (p) => { aiLive.pub(p.text); if (o.onText) o.onText(p); } });
     const { text } = await this.text(prompt, o); const v = parseJsonLoose(text); if (v === undefined) throw { code: "invalid_json", message: "no json", text }; return v;
   }
 };
@@ -175,7 +191,7 @@ function decideAiMode() {
   const cfg = apiConfigLocal(); if (cfg && cfg.model) { ai.mode = "api"; ai.label = ((API_PRESETS[cfg.provider] || {}).label || "自定义") + " · " + cfg.model; return; }
   ai.mode = "none"; ai.label = "";
 }
-const GEN_BUTTONS = ["#runBtn", "#fcRun", "#ksRun", "#klAiScore", "#klBrief", "#inRun"]; // 一键推荐在无 AI 时仍可按匹配分工作，不在此列
+const GEN_BUTTONS = ["#runBtn", "#fcRun", "#ksRun", "#klAiScore", "#klBrief", "#inRun", "#oneRun"]; // 一键推荐在无 AI 时仍可按匹配分工作，不在此列
 function refreshAvailability() {
   const s = $("#aiStatus"); const btns = GEN_BUTTONS.map((x) => $(x)).filter(Boolean);
   const setHints = (t) => { for (const id of ["#runHint", "#fcHint", "#ksHint", "#klHint", "#inHint"]) { const el = $(id); if (el) { el.className = "hint"; el.textContent = t; } } };
@@ -183,11 +199,12 @@ function refreshAvailability() {
   if (ai.ready()) { s.className = "status ok"; s.textContent = ""; s.append(h("i"), "AI 可用 · " + ai.label); btns.forEach((b) => { b.disabled = false; });
     setHints(ai.mode === "artifact" ? "首次会请求授权。" : ""); }
   else { s.className = "status warn"; btns.forEach((b) => { b.disabled = true; });
-    if (IN_ARTIFACT) { s.innerHTML = "<i></i>示例模式 · 无法调用 AI"; setHints("登录 Claude 后可生成，当前为示例。"); }
-    else if (repo.mode === "server") { s.innerHTML = "<i></i>示例模式 · 服务端未配置模型"; setHints("在「设置」填模型 Key 后可生成，当前为示例。"); }
-    else { s.innerHTML = "<i></i>示例模式 · 未接入 API"; setHints("在「设置」接入模型后可生成，当前为示例。"); } }
+    if (IN_ARTIFACT) { s.innerHTML = "<i></i>AI 不可用"; setHints("登录 Claude 后可生成。"); }
+    else if (repo.mode === "server") { s.innerHTML = "<i></i>AI 未配置"; setHints("在「设置」填模型 Key 后可生成。"); }
+    else { s.innerHTML = "<i></i>AI 未接入"; setHints("在「设置」接入模型后可生成。"); } }
   const mt = $("#modeText"); mt.textContent = IN_ARTIFACT ? "Claude 环境" : repo.mode === "server" ? (repo.canWrite ? "服务端 · 已登录" : repo.authRequired ? "服务端 · 只读访客" : "服务端") : "本地模式 · 数据存于浏览器";
   $("#apiBtn").hidden = IN_ARTIFACT;
+  if (typeof renderStartStatus === "function") try { renderStartStatus(); } catch (e) {}
 }
 
 // ===================== 登录 =====================

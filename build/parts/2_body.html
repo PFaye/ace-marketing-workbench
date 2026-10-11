@@ -3,7 +3,7 @@
   <aside class="side">
     <div class="brand"><div class="logo">ACE</div><div><b>ACE 营销工作台</b><small>AI 驱动的营销执行工具</small></div></div>
     <nav class="nav" id="nav">
-      <button type="button" data-tool="start" class="on"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8"/><path d="M6 10v10h12V10"/></svg><span>开始<span class="d">把业务搬进来</span></span></button>
+      <button type="button" data-tool="start" class="on"><svg viewBox="0 0 24 24"><path d="M4 12l8-8 8 8"/><path d="M6 10v10h12V10"/></svg><span>开始<span class="d">一键出全套</span></span></button>
       <div class="grp">策划与内容</div>
       <button type="button" data-tool="plan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>全案策划<span class="d">粘 Brief 出方案</span></span></button>
       <button type="button" data-tool="factory"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/></svg><span>内容工厂<span class="d">批量出稿</span></span></button>
@@ -32,36 +32,54 @@
 
     <!-- ========== 开始 ========== -->
     <section class="tool" id="tool-start">
-      <div class="tool-head hero"><div><h2>一段 Brief，一屋子产出</h2><p id="startIntro">三步把你的业务搬进来。</p></div><div class="acts"><button type="button" class="btn sm" id="startDemo">先看示例</button></div></div>
-      <div class="stack">
-        <div class="notice" id="startAi"><div id="startAiText"></div></div>
-        <div class="card glow" id="oneCard"><div class="card-head"><h3>一键出全套</h3><span class="sub">粘一段 Brief，方案、稿件、达人策略一起长出来</span></div>
-          <div class="card-body tight">
-            <textarea id="oneBrief" style="min-height:84px;width:100%;padding:9px 12px;border-radius:10px;border:1px solid transparent;background:var(--surface-2);color:var(--fg);font-size:13.5px;line-height:1.5;resize:vertical" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
-            <div class="toolbar"><button type="button" class="btn primary" id="oneRun">一键出全套</button><label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 约 1-2 分钟</span></label><span class="hint" id="oneHint"></span></div>
-            <div class="welcome-steps" id="oneProgress" hidden></div>
-            <div class="stats" id="oneSummary" hidden></div>
-          </div></div>
-        <div class="stats" id="startOutput"></div>
-        <div class="card"><div class="card-head"><h3>三步搬进来</h3><span class="sub">做完一步自动打勾</span></div><div class="card-body tight" id="startSteps"></div></div>
-        <div class="row-cards">
-          <div class="card"><div class="card-head"><h3>平台表格怎么导出</h3></div><div class="card-body tight">
-            <div class="welcome-steps">
-              <div class="r"><b>蒲</b><span><b>蒲公英 / 星图 / 千瓜</b>：在达人列表页点「导出」，得到 Excel，直接拖进「数据接入」。</span></div>
-              <div class="r"><b>投</b><span><b>投放后台</b>（巨量、聚光、腾讯广告）：报表页选日期 → 「下载报表」，拖进「数据接入」选「投放日报」。</span></div>
-              <div class="r"><b>表</b><span><b>自己的 Excel</b>：表头有「名称、平台、粉丝、互动、报价」或「日期、渠道、消耗、曝光、点击、转化」就能认。</span></div>
-            </div></div></div>
-          <div class="card"><div class="card-head"><h3>常见问题</h3></div><div class="card-body tight">
-            <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
-              <li><b>要配置 AI 吗？</b>不用，管理员已接入，所有生成按钮直接点。</li>
-              <li><b>改方案要重传吗？</b>不用，改「全案策划 → 项目设定」。</li>
-              <li><b>示例数据怎么清掉？</b>登录后点下面的按钮，一次清空。</li>
-              <li><b>换客户？</b>粘新 Brief 生成即可。</li>
-            </ul>
-            <div class="toolbar"><button type="button" class="btn sm ghost" id="startClear">清空示例数据</button><span class="hint" id="startClearHint"></span></div>
-          </div></div>
+      <div class="hero-wrap">
+        <canvas class="fx" id="fxCanvas" aria-hidden="true"></canvas>
+        <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="hero-main">
+          <div class="eyebrow">ACE · AI MARKETING WORKBENCH</div>
+          <h2 class="hero-title">从一段 Brief 开始</h2>
+          <p class="hero-sub">方案、稿件、达人策略，一键生成。</p>
+          <div class="hero-status" id="startAi"><i></i><span id="startAiText"></span></div>
+        </div>
+        <div class="card glass glow one" id="oneCard">
+          <div class="one-in">
+            <textarea id="oneBrief" rows="3" placeholder="例：无糖气泡水新品，下月上市，预算 300 万，打 20-30 岁年轻人，主做小红书、抖音"></textarea>
+            <div class="one-actions">
+              <button type="button" class="btn-hero" id="oneRun"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg><span>一键出全套</span></button>
+              <label class="switch" for="oneFast"><input type="checkbox" id="oneFast" checked><span>快速 · 1-2 分钟</span></label>
+              <button type="button" class="chip dash" id="oneSwap">换一段 Brief</button>
+              <span class="hint" id="oneHint"></span>
+            </div>
+          </div>
+          <div class="pipe" id="onePipe" hidden></div>
+          <div class="live" id="oneLive" hidden><b>AI</b><span class="txt" id="oneLiveText"></span><i class="cur"></i></div>
+          <div class="feed" id="oneFeed" hidden></div>
+          <div class="one-sum" id="oneSummary" hidden></div>
         </div>
       </div>
+      <div class="stats" id="startOutput" hidden></div>
+      <details class="card more" id="startMore">
+        <summary class="card-head"><h3>把真实业务搬进来</h3><span class="sub" id="startIntro"></span><span class="pill" id="startMorePill"></span></summary>
+        <div class="card-body tight">
+          <div id="startSteps" style="display:grid;gap:8px"></div>
+          <div class="row-cards">
+            <div class="tile"><h4>平台表格怎么导出</h4>
+              <div class="welcome-steps">
+                <div class="r"><b>蒲</b><span><b>蒲公英 / 星图 / 千瓜</b>：达人列表页点「导出」，Excel 直接拖进「数据接入」。</span></div>
+                <div class="r"><b>投</b><span><b>投放后台</b>（巨量、聚光、腾讯广告）：报表页「下载报表」，拖进「数据接入」选「投放日报」。</span></div>
+                <div class="r"><b>表</b><span><b>自己的 Excel</b>：表头有「名称、平台、粉丝、互动、报价」或「日期、渠道、消耗、曝光、点击、转化」就能认。</span></div>
+              </div></div>
+            <div class="tile"><h4>常见问题</h4>
+              <ul style="padding-left:18px;display:grid;gap:6px;font-size:13.5px;color:var(--fg-2)">
+                <li><b>要配置 AI 吗？</b>不用，管理员已接入。</li>
+                <li><b>改方案要重传吗？</b>不用，改「全案策划 → 项目设定」。</li>
+                <li><b>想先看看效果？</b>点「载入示例数据」，看完一键清空。</li>
+                <li><b>换客户？</b>粘新 Brief 生成即可。</li>
+              </ul></div>
+          </div>
+          <div class="toolbar"><button type="button" class="btn sm" id="startDemo">载入示例数据</button><button type="button" class="btn sm ghost" id="startClear">清空示例数据</button><span class="hint" id="startClearHint"></span></div>
+        </div>
+      </details>
     </section>
 
     <!-- ========== 全案策划 ========== -->
@@ -295,7 +313,7 @@
             <div class="toolbar"><button type="button" class="btn sm primary" id="stLlmSave">保存到服务端</button><button type="button" class="btn sm" id="stApiLocal">浏览器本地 API 设置</button><span class="hint" id="stLlmHint"></span></div>
           </div></div>
         <div class="card"><div class="card-head"><h3>当前项目</h3><span class="sub">内容工厂、达人匹配、评论洞察默认引用</span></div><div class="card-body"><dl class="kv" id="stProject"></dl><div class="toolbar"><button type="button" class="btn sm" id="stGoPlan">去全案策划修改</button></div></div></div>
-        <div class="card"><div class="card-head"><h3>数据</h3></div><div class="card-body tight"><dl class="kv" id="stData"></dl><div class="toolbar"><button type="button" class="btn sm" id="stExportKols">导出达人库 CSV</button><button type="button" class="btn sm" id="stExportMetrics">导出投放数据 CSV</button><button type="button" class="btn sm ghost" id="stReset">重置为示例数据</button></div><p class="hint" id="stDataHint"></p></div></div>
+        <div class="card"><div class="card-head"><h3>数据</h3></div><div class="card-body tight"><dl class="kv" id="stData"></dl><div class="toolbar"><button type="button" class="btn sm" id="stExportKols">导出达人库 CSV</button><button type="button" class="btn sm" id="stExportMetrics">导出投放数据 CSV</button><button type="button" class="btn sm ghost" id="stReset">清空全部数据</button></div><p class="hint" id="stDataHint"></p></div></div>
       </div>
     </section>
 

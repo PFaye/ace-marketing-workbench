@@ -1,8 +1,9 @@
 <script>
 // ===================== 一进来就开始的流程引导（五步，在真实界面上高亮讲解）+ 初始化向导 =====================
 const TOUR_STEPS = [
-  { center: true, stage: "", title: "3 件事：粘 Brief、点按钮、拖表格", text: "示例数据已填好，高亮的按钮可以直接点。", cta: "开始" },
-  { tool: "plan", el: "#fQuick", stage: "1 · 定项目", title: "粘 Brief，点「生成方案」", text: "要改方案，改下面的「项目设定」。" },
+  { center: true, stage: "", title: "粘 Brief，点一下，全套出来", text: "Brief 已经填好，先看一键出全套的效果；要接真实业务，再往下走。", cta: "开始" },
+  { tool: "start", el: "#oneRun", stage: "0 · 一键", title: "点这里，方案、稿件、达人策略一起出", text: "生成过程会在卡片里实时播放。" },
+  { tool: "plan", el: "#fQuick", stage: "1 · 定项目", title: "单独出方案在这里", text: "要改方案，改下面的「项目设定」。" },
   { tool: "factory", el: "#fcRun", stage: "2 · 出内容", title: "点一下，出几十条稿", text: "审过的才导出。" },
   { tool: "import", el: "#imDrop", stage: "3 · 接数据", title: "把平台导出的表拖这里", text: "达人名单、投放日报都从这里进。" },
   { tool: "kol", el: "#klOneClick", stage: "4 · 选达人", title: "一键选人", text: "按预算自动勾选，再生成合作 Brief。" },

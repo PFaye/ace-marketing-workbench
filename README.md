@@ -9,7 +9,7 @@ ace-workbench/
 ├── public/index.html      # 前端（由 build/parts 拼出，不要直接改）
 ├── server/
 │   ├── server.js          # HTTP 服务：静态页 + API + 定时任务
-│   ├── seed.json          # 示例数据模板（由 build 生成）
+│   ├── seed.json          # 首次启动的空白模板（由 build 生成；示例数据在页面上手动载入）
 │   └── lib/               # 存储、模型代理、监测、连接器、字段识别
 ├── build/
 │   ├── parts/             # 前端源文件（样式、页面、各工具脚本）
@@ -43,7 +43,7 @@ node server/server.js
 python3 build/build.py
 ```
 
-有 Node 时会同步重新生成 `server/seed.json`。
+有 Node 时会同步重新生成 `server/seed.json`（空白起点，示例数据不再预装）。
 
 ## 部署
 
