@@ -12,7 +12,9 @@ function materialize(t, today) {
 function stripDemo(db) {
   const arr = (v) => (Array.isArray(v) ? v : []);
   db.kols = arr(db.kols).filter((x) => x && x.source !== "示例数据");
-  db.metrics = arr(db.metrics).filter((r) => r && r.source !== "示例");
+  // 更早的版本示例投放数据没有 source 标记：按示例模板的「平台 + 计划名」指纹识别，只删没有来源的行
+  const demoKey = new Set(["抖音|达人短剧 + 挑战赛", "小红书|KOC 铺量 + 搜索", "程序化广告|信息流 oCPM"]);
+  db.metrics = arr(db.metrics).filter((r) => r && r.source !== "示例" && !(!r.source && demoKey.has(`${r.platform}|${r.campaign}`)));
   db.batches = arr(db.batches).filter((x) => x && x.source !== "示例");
   db.insights = arr(db.insights).filter((x) => x && x.source !== "示例");
   if (db.plan && db.plan.mode === "demo") { db.plan = null; if (db.project && db.project.brand === "泡研社") db.project = null; }

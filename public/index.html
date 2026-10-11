@@ -1439,12 +1439,12 @@ const repo = {
   loadLocal() { const saved = store.get("ace.db");
     if (saved && Array.isArray(saved.kols)) { for (const c of COLS) if (saved[c] !== undefined) DB[c] = saved[c];
       // 旧版本会预装示例：第一次升级到空白起点时，把示例标记的数据清掉，用户自己生成或导入的内容保留
-      if (!(saved.meta && saved.meta.v >= 2)) { stripDemo(DB); DB.meta = { ...(saved.meta || {}), v: 2 }; store.set("ace.db", DB); } else DB.meta = saved.meta; }
+      if (!(saved.meta && saved.meta.v >= 3)) { stripDemo(DB); DB.meta = { ...(saved.meta || {}), v: 3 }; store.set("ace.db", DB); } else DB.meta = saved.meta; }
     else this.resetLocal(false);
     if (!Array.isArray(DB.rules) || !DB.rules.length) DB.rules = JSON.parse(JSON.stringify(DEFAULT_RULES)); if (!Array.isArray(DB.connectors) || !DB.connectors.length) DB.connectors = JSON.parse(JSON.stringify(DEFAULT_CONNECTORS));
     this.mode = this.mode === "server" ? "server" : "local"; this.canWrite = true; this.now = todayStr(); },
   // withDemo=true 载入示例数据；false 回到空白起点（规则、连接器、设置保留）
-  resetLocal(withDemo) { const seed = materializeSeed(withDemo ? SEED_TEMPLATE : EMPTY_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); DB.meta = { v: 2 };
+  resetLocal(withDemo) { const seed = materializeSeed(withDemo ? SEED_TEMPLATE : EMPTY_TEMPLATE, todayStr()); for (const c of COLS) DB[c] = seed[c] !== undefined ? seed[c] : (Array.isArray(DB[c]) ? [] : null); DB.meta = { v: 3 };
     if (withDemo) { const ev = evaluateRules(DB.rules, DB.metrics, latestDate(DB.metrics)); DB.alerts = ev.alerts; DB.briefs = [{ id: "brief-demo", date: ev.date, text: templateBrief({ date: ev.date, stats: ev.stats, prevStats: dayStats(DB.metrics, addDaysStr(ev.date, -1)), alerts: ev.alerts, kolTodo: [], project: DB.project }), source: "template", createdAt: new Date().toISOString(), pushed: false, alertCount: ev.alerts.length }]; }
     store.set("ace.db", DB); },
   async reload() { if (this.mode !== "server") return; const r = await fetch("/api/state", { headers: this.headers(false) }); if (r.ok) this.applyState(await r.json()); },
@@ -1467,7 +1467,8 @@ const repo = {
   }
 };
 // 去掉带「示例」标记的数据（本地升级、清空示例共用）
-function stripDemo(db) { db.kols = arr(db.kols).filter((x) => x.source !== "示例数据"); db.metrics = arr(db.metrics).filter((r) => r.source !== "示例"); db.batches = arr(db.batches).filter((x) => x.source !== "示例"); db.insights = arr(db.insights).filter((x) => x.source !== "示例");
+const DEMO_METRIC_KEYS = new Set(["抖音|达人短剧 + 挑战赛", "小红书|KOC 铺量 + 搜索", "程序化广告|信息流 oCPM"]); // 旧版本示例投放数据没有 source 标记，按指纹识别
+function stripDemo(db) { db.kols = arr(db.kols).filter((x) => x.source !== "示例数据"); db.metrics = arr(db.metrics).filter((r) => r.source !== "示例" && !(!r.source && DEMO_METRIC_KEYS.has(`${r.platform}|${r.campaign}`))); db.batches = arr(db.batches).filter((x) => x.source !== "示例"); db.insights = arr(db.insights).filter((x) => x.source !== "示例");
   if (obj(db.plan).mode === "demo") { db.plan = null; if (obj(db.project).brand === (typeof DEMO_BRAND === "string" ? DEMO_BRAND : "泡研社")) db.project = null; }
   db.briefs = arr(db.briefs).filter((b) => b.id !== "brief-demo" && b.id !== "brief-seed"); if (!db.metrics.length) db.alerts = []; }
 // 实时输出总线：任何一次 AI 流式输出都会广播到这里（开始页的「AI 正在写」用）
